@@ -1,0 +1,54 @@
+version: "3"
+
+services:
+  localstack:
+    image: localstack/localstack
+    ports:
+      - "4510-4576:4510-4576"
+    environment:
+      - SERVICES=sns,sqs,s3,dynamodb,apigateway,cognito
+      - DATA_DIR=${DATA_DIR-}
+      - HOST_TMP_FOLDER=${TMPDIR:-/tmp/}localstack
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - "${PWD}/dev/localstack/localstack-init.sh:/docker-entrypoint-initaws.d/init.sh"
+      - "${TMPDIR:-/tmp}/localstack:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - dev
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:4566/health?reload" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  redis:
+    image: redis:7.0.5-alpine
+    command: redis-server -- requirepass password
+    ports:
+      - "6379:6379"
+    networks:
+      - dev
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  postgres:
+    image: postgres:14-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - "${PWD}/dev/postgres:/docker-entrypoint-initdb.d/"
+      - "pgdata:/var/lib/postgresql/data"
+    networks:
+      - dev
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
