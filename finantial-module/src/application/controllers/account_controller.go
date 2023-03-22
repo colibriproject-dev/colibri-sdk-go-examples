@@ -4,43 +4,43 @@ import (
 	"finantial-module/src/domain/usecases"
 	"net/http"
 
-	"github.com/colibri-project-io/colibri-sdk-go/pkg/web/webrest"
+	"github.com/colibri-project-io/colibri-sdk-go/pkg/web/restserver"
 )
 
-type AccountController interface {
-	Routes() []webrest.Route
-	GetAll(w http.ResponseWriter, r *http.Request)
-}
-
-type AccountRestController struct {
+type AccountController struct {
 	Usecase usecases.AccountUsecases
 }
 
-func NewAccountRestController() {
-	controller := &AccountRestController{
+func NewAccountController() *AccountController {
+	return &AccountController{
 		Usecase: usecases.NewAccountUsecase(),
 	}
-
-	webrest.AddRoutes(controller.Routes())
 }
 
-func (p *AccountRestController) Routes() []webrest.Route {
-	return []webrest.Route{
+func (p *AccountController) Routes() []restserver.Route {
+	return []restserver.Route{
 		{
 			URI:      "accounts",
 			Method:   http.MethodGet,
 			Function: p.GetAll,
-			Prefix:   webrest.PublicApi,
+			Prefix:   restserver.PublicApi,
 		},
 	}
 }
 
-func (p *AccountRestController) GetAll(w http.ResponseWriter, r *http.Request) {
-	list, err := p.Usecase.GetAll(r.Context())
+// @Summary Get account list
+// @Tags accounts
+// @Accept json
+// @Produce json
+// @Success 200 {array} models.Course
+// @Failure 500
+// @Router /public/accounts [get]
+func (p *AccountController) GetAll(ctx restserver.WebContext) {
+	list, err := p.Usecase.GetAll(ctx.Context())
 	if err != nil {
-		webrest.ErrorResponse(r, w, http.StatusInternalServerError, err)
+		ctx.ErrorResponse(http.StatusInternalServerError, err)
 		return
 	}
 
-	webrest.JsonResponse(w, http.StatusOK, list)
+	ctx.JsonResponse(http.StatusOK, list)
 }

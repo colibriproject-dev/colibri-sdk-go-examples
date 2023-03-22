@@ -1,61 +1,62 @@
+//go:generate mockgen -source enrollment_usecases.go -destination mock/enrollment_usecases_mock.go -package mock
 package usecases
 
 import (
 	"context"
-	"school-module/src/domain/models"
-	"school-module/src/infra/producers"
-	"school-module/src/infra/repositories"
 
+	"github.com/colibri-project-io/colibri-sdk-go-examples/school-module/src/domain/models"
+	"github.com/colibri-project-io/colibri-sdk-go-examples/school-module/src/infra/producers"
+	"github.com/colibri-project-io/colibri-sdk-go-examples/school-module/src/infra/repositories"
 	"github.com/google/uuid"
 )
 
-type IEnrollmentUsecase interface {
-	GetAll(ctx context.Context, studentName, courseName string) ([]models.Enrollment, error)
+type IEnrollmentUsecases interface {
+	GetPage(ctx context.Context, params *models.EnrollmentPageParamsDTO) (models.EnrollmentPage, error)
 	Create(ctx context.Context, model *models.EnrollmentCreateDTO) error
-	Delete(ctx context.Context, studentId, courseId uuid.UUID) error
-	UpdateStatus(ctx context.Context, student_id, course_id uuid.UUID, status models.EnrollmentStatus) error
+	Delete(ctx context.Context, params *models.EnrollmentDeleteParamsDTO) error
+	UpdateStatus(ctx context.Context, studentID, courseID uuid.UUID, status models.EnrollmentStatus) error
 }
 
-type EnrollmentUsecase struct {
-	Repository repositories.IEnrollmentRepository
+type EnrollmentUsecases struct {
+	Repository repositories.EnrollmentRepository
 	Producer   producers.IEnrollmentProducer
 }
 
-func NewEnrollmentUsecase() *EnrollmentUsecase {
-	return &EnrollmentUsecase{
-		Repository: repositories.NewEnrollmentRepository(),
+func NewEnrollmentUsecases() *EnrollmentUsecases {
+	return &EnrollmentUsecases{
+		Repository: repositories.NewEnrollmentDBRepository(),
 		Producer:   producers.NewEnrollmentProducer(),
 	}
 }
 
-func (u *EnrollmentUsecase) GetAll(ctx context.Context, studentName, courseName string) ([]models.Enrollment, error) {
-	return u.Repository.FindAll(ctx, studentName, courseName)
+func (u *EnrollmentUsecases) GetPage(ctx context.Context, params *models.EnrollmentPageParamsDTO) (models.EnrollmentPage, error) {
+	return u.Repository.FindPage(ctx, params.ToPageRequest(), params.ToFilters())
 }
 
-func (u *EnrollmentUsecase) Create(ctx context.Context, model *models.EnrollmentCreateDTO) error {
+func (u *EnrollmentUsecases) Create(ctx context.Context, model *models.EnrollmentCreateDTO) error {
 	if err := u.Repository.Insert(ctx, model); err != nil {
 		return err
 	}
 
-	result, _ := u.Repository.FindByStudentIdAndCourseId(ctx, model.Student.ID, model.Course.ID)
+	result, _ := u.Repository.FindByStudentIdAndCourseId(ctx, model.StudentID, model.CourseID)
 	u.Producer.Create(ctx, result)
 
 	return nil
 }
 
-func (u *EnrollmentUsecase) Delete(ctx context.Context, studentId, courseId uuid.UUID) error {
-	if err := u.Repository.Delete(ctx, studentId, courseId); err != nil {
+func (u *EnrollmentUsecases) Delete(ctx context.Context, params *models.EnrollmentDeleteParamsDTO) error {
+	if err := u.Repository.Delete(ctx, params.StudentID, params.CourseID); err != nil {
 		return err
 	}
 
 	u.Producer.Delete(ctx, &models.Enrollment{
-		Student: models.Student{ID: studentId},
-		Course:  models.Course{ID: courseId},
+		Student: models.Student{ID: params.StudentID},
+		Course:  models.Course{ID: params.CourseID},
 	})
 
 	return nil
 }
 
-func (u *EnrollmentUsecase) UpdateStatus(ctx context.Context, student_id, course_id uuid.UUID, status models.EnrollmentStatus) error {
-	return u.Repository.UpdateStatus(ctx, student_id, course_id, status)
+func (u *EnrollmentUsecases) UpdateStatus(ctx context.Context, studentID, courseID uuid.UUID, status models.EnrollmentStatus) error {
+	return u.Repository.UpdateStatus(ctx, studentID, courseID, status)
 }

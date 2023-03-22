@@ -1,15 +1,16 @@
+//go:generate mockgen -source course_usecases.go -destination mock/course_usecases_mock.go -package mock
 package usecases
 
 import (
 	"context"
-	"school-module/src/domain/models"
-	"school-module/src/infra/producers"
-	"school-module/src/infra/repositories"
 
+	"github.com/colibri-project-io/colibri-sdk-go-examples/school-module/src/domain/models"
+	"github.com/colibri-project-io/colibri-sdk-go-examples/school-module/src/infra/producers"
+	"github.com/colibri-project-io/colibri-sdk-go-examples/school-module/src/infra/repositories"
 	"github.com/google/uuid"
 )
 
-type ICourseUsecase interface {
+type ICourseUsecases interface {
 	GetAll(ctx context.Context) ([]models.Course, error)
 	GetById(ctx context.Context, id uuid.UUID) (*models.Course, error)
 	Create(ctx context.Context, model *models.CourseCreateUpdateDTO) (*models.Course, error)
@@ -17,35 +18,35 @@ type ICourseUsecase interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 }
 
-type CourseUsecase struct {
-	Repository repositories.ICourseRepository
+type CourseUsecases struct {
+	Repository repositories.CourseRepository
 	Producer   producers.ICourseProducer
 }
 
-func NewCourseUsecase() *CourseUsecase {
-	return &CourseUsecase{
-		Repository: repositories.NewCourseRepository(),
+func NewCourseUsecases() *CourseUsecases {
+	return &CourseUsecases{
+		Repository: repositories.NewCourseDBRepository(),
 		Producer:   producers.NewCourseProducer(),
 	}
 }
 
-func (u *CourseUsecase) GetAll(ctx context.Context) ([]models.Course, error) {
+func (u *CourseUsecases) GetAll(ctx context.Context) ([]models.Course, error) {
 	return u.Repository.FindAll(ctx)
 }
 
-func (u *CourseUsecase) GetById(ctx context.Context, id uuid.UUID) (*models.Course, error) {
+func (u *CourseUsecases) GetById(ctx context.Context, id uuid.UUID) (*models.Course, error) {
 	return u.Repository.FindById(ctx, id)
 }
 
-func (u *CourseUsecase) Create(ctx context.Context, model *models.CourseCreateUpdateDTO) (*models.Course, error) {
+func (u *CourseUsecases) Create(ctx context.Context, model *models.CourseCreateUpdateDTO) (*models.Course, error) {
 	return u.Repository.Insert(ctx, model)
 }
 
-func (u *CourseUsecase) Update(ctx context.Context, id uuid.UUID, model *models.CourseCreateUpdateDTO) error {
+func (u *CourseUsecases) Update(ctx context.Context, id uuid.UUID, model *models.CourseCreateUpdateDTO) error {
 	return u.Repository.Update(ctx, id, model)
 }
 
-func (u *CourseUsecase) Delete(ctx context.Context, id uuid.UUID) error {
+func (u *CourseUsecases) Delete(ctx context.Context, id uuid.UUID) error {
 	if err := u.Repository.Delete(ctx, id); err != nil {
 		return err
 	}

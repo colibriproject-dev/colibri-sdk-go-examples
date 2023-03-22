@@ -21,5 +21,5 @@ type StudentCreateUpdateDTO struct {
 }
 
 type StudentParams struct {
-	Name string `schema:"name"`
+	Name string `form:"name"`
 }

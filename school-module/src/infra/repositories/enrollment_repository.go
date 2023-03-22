@@ -1,36 +1,38 @@
+//go:generate mockgen -source enrollment_repository.go -destination mock/enrollment_repository_mock.go -package mock
 package repositories
 
 import (
 	"context"
 	"fmt"
-	"school-module/src/domain/models"
 	"strings"
 
+	"github.com/colibri-project-io/colibri-sdk-go-examples/school-module/src/domain/models"
+	"github.com/colibri-project-io/colibri-sdk-go/pkg/base/types"
 	"github.com/colibri-project-io/colibri-sdk-go/pkg/database/sqlDB"
 	"github.com/google/uuid"
 )
 
-type IEnrollmentRepository interface {
-	FindAll(ctx context.Context, studentName, courseName string) ([]models.Enrollment, error)
+type EnrollmentRepository interface {
+	FindPage(ctx context.Context, page *types.PageRequest, filters *models.EnrollmentFilters) (models.EnrollmentPage, error)
 	FindByStudentIdAndCourseId(ctx context.Context, studentId, courseId uuid.UUID) (*models.Enrollment, error)
 	Insert(ctx context.Context, model *models.EnrollmentCreateDTO) error
-	Delete(ctx context.Context, student_id, course_id uuid.UUID) error
-	UpdateStatus(ctx context.Context, student_id, course_id uuid.UUID, status models.EnrollmentStatus) error
+	Delete(ctx context.Context, studentID, courseID uuid.UUID) error
+	UpdateStatus(ctx context.Context, studentID, courseID uuid.UUID, status models.EnrollmentStatus) error
 }
 
-type EnrollmentRepository struct{}
+type EnrollmentDBRepository struct{}
 
-func NewEnrollmentRepository() *EnrollmentRepository {
-	return &EnrollmentRepository{}
+func NewEnrollmentDBRepository() *EnrollmentDBRepository {
+	return &EnrollmentDBRepository{}
 }
 
-func (r *EnrollmentRepository) FindAll(ctx context.Context, studentName, courseName string) ([]models.Enrollment, error) {
-	if studentName != "" {
-		studentName = fmt.Sprintf("%%%s%%", strings.ToLower(studentName))
+func (r *EnrollmentDBRepository) FindPage(ctx context.Context, page *types.PageRequest, filters *models.EnrollmentFilters) (models.EnrollmentPage, error) {
+	if filters.StudentName != "" {
+		filters.StudentName = fmt.Sprintf("%%%s%%", strings.ToLower(filters.StudentName))
 	}
 
-	if courseName != "" {
-		courseName = fmt.Sprintf("%%%s%%", strings.ToLower(courseName))
+	if filters.CourseName != "" {
+		filters.CourseName = fmt.Sprintf("%%%s%%", strings.ToLower(filters.CourseName))
 	}
 
 	const query = `SELECT 
@@ -44,10 +46,10 @@ func (r *EnrollmentRepository) FindAll(ctx context.Context, studentName, courseN
 	AND ($1 = '' OR (LOWER(s.name) LIKE $1))
 	AND ($2 = '' OR (LOWER(c.name) LIKE $2))`
 
-	return sqlDB.NewQuery[models.Enrollment](ctx, query, studentName, courseName).Many()
+	return sqlDB.NewPageQuery[models.Enrollment](ctx, page, query, filters.StudentName, filters.CourseName).Execute()
 }
 
-func (r *EnrollmentRepository) FindByStudentIdAndCourseId(ctx context.Context, studentId, courseId uuid.UUID) (*models.Enrollment, error) {
+func (r *EnrollmentDBRepository) FindByStudentIdAndCourseId(ctx context.Context, studentID, courseID uuid.UUID) (*models.Enrollment, error) {
 	const query = `SELECT 
 	  s.id, s.name, s.email, s.birthday, s.created_at,
 	  c.id, c.name, c.value, c.created_at,
@@ -58,23 +60,23 @@ func (r *EnrollmentRepository) FindByStudentIdAndCourseId(ctx context.Context, s
 	WHERE e.student_id = $1
 	AND e.course_id = $2`
 
-	return sqlDB.NewQuery[models.Enrollment](ctx, query, studentId, courseId).One()
+	return sqlDB.NewQuery[models.Enrollment](ctx, query, studentID, courseID).One()
 }
 
-func (r *EnrollmentRepository) Insert(ctx context.Context, model *models.EnrollmentCreateDTO) error {
+func (r *EnrollmentDBRepository) Insert(ctx context.Context, model *models.EnrollmentCreateDTO) error {
 	const query = `INSERT INTO enrollments(student_id, course_id, installments, status) VALUES($1, $2, $3, $4)`
 
-	return sqlDB.NewStatement(ctx, query, model.Student.ID, model.Course.ID, model.Installments, models.ADIMPLENTE).Execute()
+	return sqlDB.NewStatement(ctx, query, model.StudentID, model.CourseID, model.Installments, models.ADIMPLENTE).Execute()
 }
 
-func (r *EnrollmentRepository) Delete(ctx context.Context, student_id, course_id uuid.UUID) error {
+func (r *EnrollmentDBRepository) Delete(ctx context.Context, studentID, courseID uuid.UUID) error {
 	const query = `DELETE FROM enrollments WHERE student_id = $1 AND course_id = $2`
 
-	return sqlDB.NewStatement(ctx, query, student_id, course_id).Execute()
+	return sqlDB.NewStatement(ctx, query, studentID, courseID).Execute()
 }
 
-func (r *EnrollmentRepository) UpdateStatus(ctx context.Context, student_id, course_id uuid.UUID, status models.EnrollmentStatus) error {
+func (r *EnrollmentDBRepository) UpdateStatus(ctx context.Context, studentID, courseID uuid.UUID, status models.EnrollmentStatus) error {
 	const query = `UPDATE enrollments SET status = $3 WHERE student_id = $1 AND course_id = $2`
 
-	return sqlDB.NewStatement(ctx, query, student_id, course_id, status).Execute()
+	return sqlDB.NewStatement(ctx, query, studentID, courseID, status).Execute()
 }
