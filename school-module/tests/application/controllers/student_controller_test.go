@@ -3,6 +3,7 @@ package controllers
 import (
 	"errors"
 	"net/http"
+	"os"
 	"testing"
 	"time"
 
@@ -401,5 +402,23 @@ func TestPostStudentDocument(t *testing.T) {
 		}, restController.PostDocument)
 
 		assert.Equal(t, http.StatusBadRequest, response.StatusCode())
+	})
+
+	t.Run("Should upload document by student", func(t *testing.T) {
+		file, err := os.Open("../../../development-environment/files/img.png")
+		assert.NoError(t, err)
+
+		usecaseMock.EXPECT().UploadDocument(gomock.Any(), uuid.MustParse("9f9fa978-7df0-4474-b1d4-6be55e0dbd1d"), gomock.Any()).Return("/file/img.png", nil)
+
+		response := restserver.NewRequestTest(&restserver.RequestTest{
+			Method:        http.MethodPost,
+			Path:          path,
+			Url:           "/students/9f9fa978-7df0-4474-b1d4-6be55e0dbd1d/upload-document",
+			UploadFile:    file,
+			FormFileField: "file",
+			FormFileName:  "img.png",
+		}, restController.PostDocument)
+
+		assert.Equal(t, http.StatusOK, response.StatusCode())
 	})
 }

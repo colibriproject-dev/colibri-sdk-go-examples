@@ -186,6 +186,7 @@ func (c *StudentController) Delete(ctx restserver.WebContext) {
 	ctx.EmptyResponse(http.StatusNoContent)
 }
 
+// PostDocument
 // @Summary Upload student document
 // @Tags students
 // @Accept x-www-form-urlencoded
