@@ -27,7 +27,7 @@ type StudentUsecases struct {
 
 func NewStudentUsecases() *StudentUsecases {
 	return &StudentUsecases{
-		Repository: repositories.NewStudentDBRepository(),
+		Repository: repositories.NewStudentDBAndStorageRepository(),
 		Producer:   producers.NewStudentDeletedProducer(),
 	}
 }

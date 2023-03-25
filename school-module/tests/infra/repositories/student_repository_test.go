@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	studentRepository = repositories.NewStudentDBRepository()
+	studentRepository = repositories.NewStudentDBAndStorageRepository()
 	studentMockData   = []models.Student{
 		{ID: uuid.MustParse("53bb5356-e900-4929-8d4d-debe31da40bb"), Name: "STUDENT TEST 1", Email: "student1@email.com", Birthday: time.Date(2000, time.August, 24, 0, 0, 0, 0, time.FixedZone("", 0)), CreatedAt: time.Date(2023, time.August, 24, 9, 0, 0, 0, time.FixedZone("", 0))},
 		{ID: uuid.MustParse("9219ea44-b0d6-4726-85a0-bbacf16dbe35"), Name: "STUDENT TEST 2", Email: "student2@email.com", Birthday: time.Date(2001, time.August, 25, 0, 0, 0, 0, time.FixedZone("", 0)), CreatedAt: time.Date(2023, time.August, 25, 15, 0, 0, 0, time.FixedZone("", 0))},
