@@ -22,13 +22,13 @@ type IStudentUsecases interface {
 
 type StudentUsecases struct {
 	Repository repositories.StudentRepository
-	Producer   producers.IStudentProducer
+	Producer   producers.IStudentDeletedProducer
 }
 
 func NewStudentUsecases() *StudentUsecases {
 	return &StudentUsecases{
 		Repository: repositories.NewStudentDBRepository(),
-		Producer:   producers.NewStudentProducer(),
+		Producer:   producers.NewStudentDeletedProducer(),
 	}
 }
 

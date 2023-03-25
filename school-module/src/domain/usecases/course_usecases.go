@@ -20,13 +20,13 @@ type ICourseUsecases interface {
 
 type CourseUsecases struct {
 	Repository repositories.CourseRepository
-	Producer   producers.ICourseProducer
+	Producer   producers.ICourseDeletedProducer
 }
 
 func NewCourseUsecases() *CourseUsecases {
 	return &CourseUsecases{
 		Repository: repositories.NewCourseDBRepository(),
-		Producer:   producers.NewCourseProducer(),
+		Producer:   producers.NewCourseDeletedProducer(),
 	}
 }
 

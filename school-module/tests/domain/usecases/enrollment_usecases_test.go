@@ -20,7 +20,8 @@ func TestEnrollmentUsecases(t *testing.T) {
 		result := usecases.NewEnrollmentUsecases()
 		assert.NotNil(t, result)
 		assert.NotNil(t, result.Repository)
-		assert.NotNil(t, result.Producer)
+		assert.NotNil(t, result.EnrollmentCreatedProducer)
+		assert.NotNil(t, result.EnrollmentDeletedProducer)
 	})
 }
 
@@ -75,7 +76,7 @@ func TestGetEnrollmentPage(t *testing.T) {
 func TestCreateEnrollment(t *testing.T) {
 	controller := gomock.NewController(t)
 	mockRepository := mockRepositories.NewMockEnrollmentRepository(controller)
-	mockProducer := mockProducers.NewMockIEnrollmentProducer(controller)
+	mockProducer := mockProducers.NewMockIEnrollmentCreatedProducer(controller)
 	defer controller.Finish()
 
 	t.Run("Should return error when occurred error in Insert", func(t *testing.T) {
@@ -93,7 +94,7 @@ func TestCreateEnrollment(t *testing.T) {
 		mockRepository.EXPECT().FindByStudentIdAndCourseId(gomock.Any(), gomock.Any(), gomock.Any()).Return(&models.Enrollment{}, nil)
 		mockProducer.EXPECT().Create(gomock.Any(), gomock.Any())
 
-		usecase := usecases.EnrollmentUsecases{Repository: mockRepository, Producer: mockProducer}
+		usecase := usecases.EnrollmentUsecases{Repository: mockRepository, EnrollmentCreatedProducer: mockProducer}
 		err := usecase.Create(ctx, &models.EnrollmentCreateDTO{})
 
 		assert.NoError(t, err)
@@ -103,7 +104,7 @@ func TestCreateEnrollment(t *testing.T) {
 func TestDeleteEnrollment(t *testing.T) {
 	controller := gomock.NewController(t)
 	mockRepository := mockRepositories.NewMockEnrollmentRepository(controller)
-	mockProducer := mockProducers.NewMockIEnrollmentProducer(controller)
+	mockProducer := mockProducers.NewMockIEnrollmentDeletedProducer(controller)
 	defer controller.Finish()
 
 	t.Run("Should return error when occurred error in Delete", func(t *testing.T) {
@@ -120,7 +121,7 @@ func TestDeleteEnrollment(t *testing.T) {
 		mockRepository.EXPECT().Delete(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 		mockProducer.EXPECT().Delete(gomock.Any(), gomock.Any())
 
-		usecase := usecases.EnrollmentUsecases{Repository: mockRepository, Producer: mockProducer}
+		usecase := usecases.EnrollmentUsecases{Repository: mockRepository, EnrollmentDeletedProducer: mockProducer}
 		err := usecase.Delete(ctx, &models.EnrollmentDeleteParamsDTO{})
 
 		assert.NoError(t, err)

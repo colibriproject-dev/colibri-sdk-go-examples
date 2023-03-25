@@ -36,9 +36,11 @@ func (m *MockIStudentProducer) EXPECT() *MockIStudentProducerMockRecorder {
 }
 
 // Delete mocks base method.
-func (m *MockIStudentProducer) Delete(ctx context.Context, model *models.Student) {
+func (m *MockIStudentProducer) Delete(ctx context.Context, model *models.Student) error {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Delete", ctx, model)
+	ret := m.ctrl.Call(m, "Delete", ctx, model)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Delete indicates an expected call of Delete.

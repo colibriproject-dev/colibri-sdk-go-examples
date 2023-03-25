@@ -36,9 +36,11 @@ func (m *MockIEnrollmentProducer) EXPECT() *MockIEnrollmentProducerMockRecorder 
 }
 
 // Create mocks base method.
-func (m *MockIEnrollmentProducer) Create(ctx context.Context, model *models.Enrollment) {
+func (m *MockIEnrollmentProducer) Create(ctx context.Context, model *models.Enrollment) error {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Create", ctx, model)
+	ret := m.ctrl.Call(m, "Create", ctx, model)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Create indicates an expected call of Create.
@@ -48,9 +50,11 @@ func (mr *MockIEnrollmentProducerMockRecorder) Create(ctx, model interface{}) *g
 }
 
 // Delete mocks base method.
-func (m *MockIEnrollmentProducer) Delete(ctx context.Context, model *models.Enrollment) {
+func (m *MockIEnrollmentProducer) Delete(ctx context.Context, model *models.Enrollment) error {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Delete", ctx, model)
+	ret := m.ctrl.Call(m, "Delete", ctx, model)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Delete indicates an expected call of Delete.

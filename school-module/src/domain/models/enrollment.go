@@ -10,11 +10,11 @@ import (
 type EnrollmentPage *types.Page[Enrollment]
 
 type Enrollment struct {
-	Student      Student          `json:"student"`
-	Course       Course           `json:"course"`
-	Installments uint8            `json:"installments"`
-	Status       EnrollmentStatus `json:"status"`
-	CreatedAt    time.Time        `json:"createdAt"`
+	Student      Student          `json:"student" validate:"required"`
+	Course       Course           `json:"course" validate:"required"`
+	Installments uint8            `json:"installments" validate:"required"`
+	Status       EnrollmentStatus `json:"status" validate:"required"`
+	CreatedAt    time.Time        `json:"createdAt" validate:"required"`
 }
 
 type EnrollmentCreateDTO struct {

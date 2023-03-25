@@ -18,14 +18,16 @@ type IEnrollmentUsecases interface {
 }
 
 type EnrollmentUsecases struct {
-	Repository repositories.EnrollmentRepository
-	Producer   producers.IEnrollmentProducer
+	Repository                repositories.EnrollmentRepository
+	EnrollmentCreatedProducer producers.IEnrollmentCreatedProducer
+	EnrollmentDeletedProducer producers.IEnrollmentDeletedProducer
 }
 
 func NewEnrollmentUsecases() *EnrollmentUsecases {
 	return &EnrollmentUsecases{
-		Repository: repositories.NewEnrollmentDBRepository(),
-		Producer:   producers.NewEnrollmentProducer(),
+		Repository:                repositories.NewEnrollmentDBRepository(),
+		EnrollmentCreatedProducer: producers.NewEnrollmentCreatedProducer(),
+		EnrollmentDeletedProducer: producers.NewEnrollmentDeletedProducer(),
 	}
 }
 
@@ -39,7 +41,7 @@ func (u *EnrollmentUsecases) Create(ctx context.Context, model *models.Enrollmen
 	}
 
 	result, _ := u.Repository.FindByStudentIdAndCourseId(ctx, model.StudentID, model.CourseID)
-	u.Producer.Create(ctx, result)
+	u.EnrollmentCreatedProducer.Create(ctx, result)
 
 	return nil
 }
@@ -49,7 +51,7 @@ func (u *EnrollmentUsecases) Delete(ctx context.Context, params *models.Enrollme
 		return err
 	}
 
-	u.Producer.Delete(ctx, &models.Enrollment{
+	u.EnrollmentDeletedProducer.Delete(ctx, &models.Enrollment{
 		Student: models.Student{ID: params.StudentID},
 		Course:  models.Course{ID: params.CourseID},
 	})

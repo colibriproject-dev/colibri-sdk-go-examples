@@ -1,7 +1,6 @@
 package consumers
 
 import (
-	"context"
 	"errors"
 	"math/rand"
 	"testing"
@@ -25,7 +24,6 @@ func TestNewFinantialInstallmentConsumer(t *testing.T) {
 }
 
 func TestAccountancyCreatedConsumer(t *testing.T) {
-	ctx := context.Background()
 	providerMessageMock := &messaging.ProviderMessage{
 		Message: models.Account{
 			ID:           uuid.New(),
