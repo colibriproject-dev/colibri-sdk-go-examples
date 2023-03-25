@@ -7,6 +7,7 @@ import (
 
 	"github.com/colibri-project-io/colibri-sdk-go/pkg/base/test"
 	"github.com/colibri-project-io/colibri-sdk-go/pkg/database/sqlDB"
+	"github.com/colibri-project-io/colibri-sdk-go/pkg/storage"
 )
 
 var (
@@ -20,7 +21,10 @@ func TestMain(m *testing.M) {
 	test.InitializeSqlDBTest()
 	basePath = test.MountAbsolutPath("../../../development-environment/database/tests-dataset/")
 	pc = test.UsePostgresContainer()
-
 	sqlDB.Initialize()
+
+	test.InitializeTestLocalstack(test.MountAbsolutPath("../../../development-environment/localstack"))
+	storage.Initialize()
+
 	m.Run()
 }

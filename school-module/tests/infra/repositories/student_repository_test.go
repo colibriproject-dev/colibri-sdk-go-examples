@@ -1,11 +1,14 @@
 package repositories
 
 import (
+	"mime/multipart"
+	"os"
 	"testing"
 	"time"
 
 	"github.com/colibri-project-io/colibri-sdk-go-examples/school-module/src/domain/models"
 	"github.com/colibri-project-io/colibri-sdk-go-examples/school-module/src/infra/repositories"
+	"github.com/colibri-project-io/colibri-sdk-go/pkg/base/test"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
@@ -149,5 +152,18 @@ func TestStudentRepositoryDelete(t *testing.T) {
 		assert.NoError(t, errDelete)
 		assert.NoError(t, err)
 		assert.Nil(t, result)
+	})
+}
+
+func TestStudentRepositoryUploadDocument(t *testing.T) {
+	t.Run("Should upload document to storage", func(t *testing.T) {
+		var file multipart.File
+		file, err := os.Open(test.MountAbsolutPath("../../../development-environment/files/img.png"))
+		assert.NoError(t, err)
+
+		result, err := studentRepository.UploadDocument(ctx, uuid.New(), &file)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
 	})
 }

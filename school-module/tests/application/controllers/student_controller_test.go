@@ -404,6 +404,25 @@ func TestPostStudentDocument(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, response.StatusCode())
 	})
 
+	t.Run("Should  return error when occurred error in FormFile", func(t *testing.T) {
+		errMock := errors.New("mock GetById")
+		usecaseMock.EXPECT().UploadDocument(gomock.Any(), gomock.Any(), gomock.Any()).Return("", errMock)
+
+		file, err := os.Open("../../../development-environment/files/img.png")
+
+		response := restserver.NewRequestTest(&restserver.RequestTest{
+			Method:        http.MethodPost,
+			Path:          path,
+			Url:           "/students/9f9fa978-7df0-4474-b1d4-6be55e0dbd1d/upload-document",
+			UploadFile:    file,
+			FormFileField: "file",
+			FormFileName:  "img.png",
+		}, restController.PostDocument)
+
+		assert.NoError(t, err)
+		assert.Equal(t, http.StatusInternalServerError, response.StatusCode())
+	})
+
 	t.Run("Should upload document by student", func(t *testing.T) {
 		file, err := os.Open("../../../development-environment/files/img.png")
 		assert.NoError(t, err)

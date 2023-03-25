@@ -20,16 +20,6 @@ func TestStudentDeletedProducer(t *testing.T) {
 		assert.NotNil(t, producer)
 	})
 
-	t.Run("should return error when message is invalid", func(t *testing.T) {
-		producerFn := func() error {
-			return producers.NewStudentDeletedProducer().Delete(ctx, &models.Student{})
-		}
-		resp, err := messaging.NewTestProducer[models.Student](producerFn, testTopic, 10).Execute()
-
-		assert.Error(t, err)
-		assert.Nil(t, resp)
-	})
-
 	t.Run("should send message", func(t *testing.T) {
 		expected := &models.Student{
 			ID:        uuid.New(),

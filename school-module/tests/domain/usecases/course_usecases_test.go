@@ -147,7 +147,7 @@ func TestUpdateCourse(t *testing.T) {
 func TestDeleteCourse(t *testing.T) {
 	controller := gomock.NewController(t)
 	mockRepository := mockRepositories.NewMockCourseRepository(controller)
-	mockProducer := mockProducers.NewMockICourseProducer(controller)
+	mockProducer := mockProducers.NewMockICourseDeletedProducer(controller)
 	defer controller.Finish()
 
 	t.Run("Should return error when occurred error in Delete", func(t *testing.T) {
