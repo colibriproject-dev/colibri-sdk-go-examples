@@ -8,35 +8,33 @@ import (
 	"github.com/colibri-project-io/colibri-sdk-go/pkg/messaging"
 )
 
-type SchoolStudentConsumer interface {
-	Delete(ctx context.Context, message *messaging.ProviderMessage) error
-}
-
-type SchoolStudentQueueConsumer struct {
-	QueueName string
+type SchoolStudentConsumer struct {
+	queueName string
 	Usecase   usecases.AccountUsecases
 }
 
-func NewSchoolStudentConsumer() {
-	consumer := SchoolStudentQueueConsumer{
-		QueueName: "SCHOOL_STUDENT_FINANCIAL",
+func NewSchoolStudentConsumer() messaging.QueueConsumer {
+	return &SchoolStudentConsumer{
+		queueName: "SCHOOL_STUDENT_FINANCIAL",
 		Usecase:   usecases.NewAccountUsecase(),
 	}
-
-	messaging.AddConsumer(messaging.NewConsumer(consumer.QueueName, consumer.Delete))
 }
 
-func (p *SchoolStudentQueueConsumer) Delete(ctx context.Context, message *messaging.ProviderMessage) error {
+func (p *SchoolStudentConsumer) Consume(ctx context.Context, providerMessage *messaging.ProviderMessage) error {
 	var model models.Student
-	if err := message.DecodeMessage(&model); err != nil {
+	if err := providerMessage.DecodeMessage(&model); err != nil {
 		return err
 	}
 
-	if message.Action != "DELETE_STUDENT" {
+	if providerMessage.Action != "DELETE_STUDENT" {
 		if err := p.Usecase.DeleteByStudent(ctx, model.ID); err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+func (c *SchoolStudentConsumer) QueueName() string {
+	return c.queueName
 }

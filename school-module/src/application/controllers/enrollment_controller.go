@@ -2,102 +2,118 @@ package controllers
 
 import (
 	"net/http"
-	"school-module/src/domain/models"
-	"school-module/src/domain/usecases"
-	"strings"
 
-	"github.com/colibri-project-io/colibri-sdk-go/pkg/web/webrest"
-	"github.com/google/uuid"
+	"github.com/colibri-project-io/colibri-sdk-go-examples/school-module/src/domain/models"
+	"github.com/colibri-project-io/colibri-sdk-go-examples/school-module/src/domain/usecases"
+	"github.com/colibri-project-io/colibri-sdk-go/pkg/web/restserver"
 )
 
-type IEnrollmentController interface {
-	Routes() []webrest.Route
-	GetAll(w http.ResponseWriter, r *http.Request)
-	Post(w http.ResponseWriter, r *http.Request)
-	Delete(w http.ResponseWriter, r *http.Request)
-}
-
 type EnrollmentController struct {
-	Usecase usecases.IEnrollmentUsecase
+	Usecase usecases.IEnrollmentUsecases
 }
 
-func NewEnrollmentController() {
-	controller := &EnrollmentController{
-		Usecase: usecases.NewEnrollmentUsecase(),
+func NewEnrollmentController() *EnrollmentController {
+	return &EnrollmentController{
+		Usecase: usecases.NewEnrollmentUsecases(),
 	}
-
-	webrest.AddRoutes(controller.Routes())
 }
 
-func (c *EnrollmentController) Routes() []webrest.Route {
-	return []webrest.Route{
+func (c *EnrollmentController) Routes() []restserver.Route {
+	return []restserver.Route{
+		{
+			URI:      "enrollments",
+			Method:   http.MethodGet,
+			Function: c.GetPage,
+			Prefix:   restserver.PublicApi,
+		},
 		{
 			URI:      "enrollments",
 			Method:   http.MethodPost,
 			Function: c.Post,
-			Prefix:   webrest.PublicApi,
-		},
-		{
-			URI:      "enrollments",
-			Method:   http.MethodGet,
-			Function: c.GetAll,
-			Prefix:   webrest.PublicApi,
+			Prefix:   restserver.PublicApi,
 		},
 		{
 			URI:      "enrollments",
 			Method:   http.MethodDelete,
 			Function: c.Delete,
-			Prefix:   webrest.PublicApi,
+			Prefix:   restserver.PublicApi,
 		},
 	}
 }
 
-func (c *EnrollmentController) GetAll(w http.ResponseWriter, r *http.Request) {
-	studentName := strings.ToLower(r.URL.Query().Get("studentName"))
-	courseName := strings.ToLower(r.URL.Query().Get("courseName"))
-
-	list, err := c.Usecase.GetAll(r.Context(), studentName, courseName)
-	if err != nil {
-		webrest.ErrorResponse(r, w, http.StatusInternalServerError, err)
+// @Summary Get enrollments page
+// @Tags enrollments
+// @Accept json
+// @Produce json
+// @Success 200 {array} models.Enrollment
+// @Failure 400
+// @Failure 500
+// @Param page query uint16 true "page" minimum(1) default(1)
+// @Param pageSize query uint16 true "size of page" minimum(1) default(10)
+// @Param studentName query string false "name of student"
+// @Param courseName query string false "name of course"
+// @Router /public/enrollments [get]
+func (c *EnrollmentController) GetPage(ctx restserver.WebContext) {
+	var params models.EnrollmentPageParamsDTO
+	if err := ctx.DecodeQueryParams(&params); err != nil {
+		ctx.ErrorResponse(http.StatusBadRequest, err)
 		return
 	}
 
-	webrest.JsonResponse(w, http.StatusOK, list)
+	page, err := c.Usecase.GetPage(ctx.Context(), &params)
+	if err != nil {
+		ctx.ErrorResponse(http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.JsonResponse(http.StatusOK, page)
 }
 
-func (c *EnrollmentController) Post(w http.ResponseWriter, r *http.Request) {
-	body, err := webrest.DecodeBody[models.EnrollmentCreateDTO](r)
-	if err != nil {
-		webrest.ErrorResponse(r, w, http.StatusUnprocessableEntity, err)
+// @Summary Enrollment create
+// @Tags enrollments
+// @Accept json
+// @Produce json
+// @Success 201
+// @Failure 422
+// @Failure 500
+// @Param request body models.EnrollmentCreateDTO true "request body"
+// @Router /public/enrollments [post]
+func (c *EnrollmentController) Post(ctx restserver.WebContext) {
+	var body models.EnrollmentCreateDTO
+	if err := ctx.DecodeBody(&body); err != nil {
+		ctx.ErrorResponse(http.StatusUnprocessableEntity, err)
 		return
 	}
 
-	if err = c.Usecase.Create(r.Context(), body); err != nil {
-		webrest.ErrorResponse(r, w, http.StatusInternalServerError, err)
+	if err := c.Usecase.Create(ctx.Context(), &body); err != nil {
+		ctx.ErrorResponse(http.StatusInternalServerError, err)
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	ctx.EmptyResponse(http.StatusCreated)
 }
 
-func (c *EnrollmentController) Delete(w http.ResponseWriter, r *http.Request) {
-	params := r.URL.Query()
-	studentId, err := uuid.Parse(params.Get("student_id"))
-	if err != nil {
-		webrest.ErrorResponse(r, w, http.StatusBadRequest, err)
+// @Summary Enrollment delete
+// @Tags enrollments
+// @Accept json
+// @Produce json
+// @Success 204
+// @Failure 400
+// @Failure 500
+// @Param studentId query string true "ID of student"
+// @Param courseId query string true "ID of course"
+// @Router /public/enrollments [delete]
+func (c *EnrollmentController) Delete(ctx restserver.WebContext) {
+	var params models.EnrollmentDeleteParamsDTO
+	if err := ctx.DecodeQueryParams(&params); err != nil {
+		ctx.ErrorResponse(http.StatusBadRequest, err)
 		return
 	}
 
-	courseId, err := uuid.Parse(params.Get("course_id"))
-	if err != nil {
-		webrest.ErrorResponse(r, w, http.StatusBadRequest, err)
+	if err := c.Usecase.Delete(ctx.Context(), &params); err != nil {
+		ctx.ErrorResponse(http.StatusInternalServerError, err)
 		return
 	}
 
-	if err = c.Usecase.Delete(r.Context(), studentId, courseId); err != nil {
-		webrest.ErrorResponse(r, w, http.StatusInternalServerError, err)
-		return
-	}
-
-	w.WriteHeader(http.StatusNoContent)
+	ctx.EmptyResponse(http.StatusNoContent)
 }

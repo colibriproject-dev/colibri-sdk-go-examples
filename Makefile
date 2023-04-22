@@ -11,8 +11,8 @@ clean:
 	docker rmi school-module finantial-module
 
 build:
-	docker buildx build --progress=plain --no-cache -t school-module . --build-arg SRC_PATH=/school-module
-	docker buildx build --progress=plain --no-cache -t finantial-module . --build-arg SRC_PATH=/finantial-module
+	docker buildx build --progress=plain --no-cache -t school-module . --build-arg APP_SRC=school-module
+	docker buildx build --progress=plain --no-cache -t finantial-module . --build-arg APP_SRC=finantial-module
 
 logs:
 	docker-compose -p ${STACK_NAME} logs -f

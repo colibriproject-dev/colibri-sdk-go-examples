@@ -4,42 +4,42 @@ import (
 	"finantial-module/src/domain/usecases"
 	"net/http"
 
-	"github.com/colibri-project-io/colibri-sdk-go/pkg/web/webrest"
+	"github.com/colibri-project-io/colibri-sdk-go/pkg/web/restserver"
 )
 
-type ScheduledController interface {
-	Routes() []webrest.Route
-	ProcessAllOverdueInvoices(w http.ResponseWriter, r *http.Request)
-}
-
-type ScheduledRestController struct {
+type ScheduledController struct {
 	Usecase usecases.InvoiceUsecases
 }
 
-func NewScheduledRestController() {
-	controller := &ScheduledRestController{
+func NewScheduledController() *ScheduledController {
+	return &ScheduledController{
 		Usecase: usecases.NewInvoiceUsecase(),
 	}
-
-	webrest.AddRoutes(controller.Routes())
 }
 
-func (p *ScheduledRestController) Routes() []webrest.Route {
-	return []webrest.Route{
+func (p *ScheduledController) Routes() []restserver.Route {
+	return []restserver.Route{
 		{
 			URI:      "scheduled",
 			Method:   http.MethodPost,
 			Function: p.ProcessAllOverdueInvoices,
-			Prefix:   webrest.PublicApi,
+			Prefix:   restserver.PublicApi,
 		},
 	}
 }
 
-func (p *ScheduledRestController) ProcessAllOverdueInvoices(w http.ResponseWriter, r *http.Request) {
-	if err := p.Usecase.ProcessAllOverdueInvoices(r.Context()); err != nil {
-		webrest.ErrorResponse(r, w, http.StatusInternalServerError, err)
+// @Summary Run scheduled routine
+// @Tags scheduled
+// @Accept json
+// @Produce json
+// @Success 200
+// @Failure 500
+// @Router /public/scheduled [post]
+func (p *ScheduledController) ProcessAllOverdueInvoices(ctx restserver.WebContext) {
+	if err := p.Usecase.ProcessAllOverdueInvoices(ctx.Context()); err != nil {
+		ctx.ErrorResponse(http.StatusInternalServerError, err)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	ctx.EmptyResponse(http.StatusOK)
 }

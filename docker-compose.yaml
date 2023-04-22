@@ -2,38 +2,29 @@ version: "3"
 
 services:
   localstack:
-    image: localstack/localstack
+    image: localstack/localstack:1.4
     ports:
-      - "4510-4576:4510-4576"
+      - "127.0.0.1:4510-4559:4510-4559"  # external service port range
+      - "127.0.0.1:4566:4566"            # LocalStack Edge Proxy
     environment:
-      - SERVICES=sns,sqs,s3,dynamodb,apigateway,cognito
+      - DEBUG=${DEBUG-}
+      - SERVICES=sns,sqs,s3
       - DATA_DIR=${DATA_DIR-}
+      - LAMBDA_EXECUTOR=${LAMBDA_EXECUTOR-}
       - HOST_TMP_FOLDER=${TMPDIR:-/tmp/}localstack
       - DOCKER_HOST=unix:///var/run/docker.sock
     volumes:
-      - "${PWD}/dev/localstack/localstack-init.sh:/docker-entrypoint-initaws.d/init.sh"
-      - "${TMPDIR:-/tmp}/localstack:/tmp/localstack"
+      - "${PWD}/dev/localstack:/docker-entrypoint-initaws.d/"
       - "/var/run/docker.sock:/var/run/docker.sock"
     networks:
       - dev
-    healthcheck:
-      test: [ "CMD", "curl", "http://localhost:4566/health?reload" ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
 
   redis:
     image: redis:7.0.5-alpine
-    command: redis-server -- requirepass password
     ports:
       - "6379:6379"
     networks:
       - dev
-    healthcheck:
-      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
 
   postgres:
     image: postgres:14-alpine
@@ -41,14 +32,71 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: postgres
     volumes:
       - "${PWD}/dev/postgres:/docker-entrypoint-initdb.d/"
       - "pgdata:/var/lib/postgresql/data"
     networks:
       - dev
-    healthcheck:
-      test: [ "CMD", "pg_isready" ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+
+  school-module:
+    image: school-module
+    ports:
+      - "8080:8080"
+    environment:
+      ENVIRONMENT: development      
+      APP_NAME: Colibri SDK Go Test - School Module
+      APP_TYPE: service
+      NEW_RELIC_LICENSE: aebc9db1f22bac48cefd6ba02c482ec16f3dNRAL
+      PORT: 8080
+      CLOUD: aws
+      CLOUD_PROJECT_ID: XYZ
+      CLOUD_HOST: http://localstack:4566
+      CLOUD_REGION: us-east-1
+      CLOUD_SECRET: no_secret
+      CLOUD_TOKEN: no_token
+      CLOUD_DISABLE_SSL: "true"
+      SQL_DB_HOST: postgres
+      SQL_DB_PORT: 5432
+      SQL_DB_USER: postgres
+      SQL_DB_PASSWORD: postgres
+      SQL_DB_NAME: school_module
+      SQL_DB_SSL_MODE: disable
+      SQL_DB_MIGRATION: "true"
+      CACHE_URI: redis:6379
+      STORAGE_BUCKET: meu-bucket
+    networks:
+      - dev
+
+  finantial-module:
+    image: finantial-module
+    ports:
+      - "8081:8081"
+    environment:
+      ENVIRONMENT: development      
+      APP_NAME: Colibri SDK Go Test - Finantial Module
+      APP_TYPE: service
+      NEW_RELIC_LICENSE: aebc9db1f22bac48cefd6ba02c482ec16f3dNRAL
+      PORT: 8081
+      CLOUD: aws
+      CLOUD_PROJECT_ID: XYZ
+      CLOUD_HOST: http://localstack:4566
+      CLOUD_REGION: us-east-1
+      CLOUD_SECRET: no_secret
+      CLOUD_TOKEN: no_token
+      CLOUD_DISABLE_SSL: "true"
+      SQL_DB_HOST: postgres
+      SQL_DB_PORT: 5432
+      SQL_DB_USER: postgres
+      SQL_DB_PASSWORD: postgres
+      SQL_DB_NAME: finantial_module
+      SQL_DB_SSL_MODE: disable
+      SQL_DB_MIGRATION: "true"
+    networks:
+      - dev
+
+volumes:
+  pgdata:
+
+networks:
+  dev:

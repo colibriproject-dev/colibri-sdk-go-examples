@@ -25,10 +25,3 @@ awslocal sns subscribe --topic-arn arn:aws:sns:us-east-1:000000000000:FINANCIAL_
          --notification-endpoint arn:aws:sqs:us-east-1:queue:FINANCIAL_INSTALLMENT_SCHOOL
 
 awslocal s3api create-bucket --bucket meu-bucket --acl public-read
-
-awslocal dynamodb create-table \
-    --table-name Courses \
-    --attribute-definitions AttributeName=id,AttributeType=N \
-    --key-schema AttributeName=id,KeyType=HASH \
-    --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 \
-    --table-class STANDARD

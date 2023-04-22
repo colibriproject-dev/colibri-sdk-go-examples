@@ -5,72 +5,82 @@ import (
 	"finantial-module/src/domain/usecases"
 	"net/http"
 
-	"github.com/colibri-project-io/colibri-sdk-go/pkg/web/webrest"
+	"github.com/colibri-project-io/colibri-sdk-go/pkg/web/restserver"
 	"github.com/google/uuid"
 )
 
-type InvoiceController interface {
-	Routes() []webrest.Route
-	GetAll(w http.ResponseWriter, r *http.Request)
-	PatchPaymentDate(w http.ResponseWriter, r *http.Request)
-}
-
-type InvoiceRestController struct {
+type InvoiceController struct {
 	Usecase usecases.InvoiceUsecases
 }
 
-func NewInvoiceRestController() {
-	controller := &InvoiceRestController{
+func NewInvoiceController() *InvoiceController {
+	return &InvoiceController{
 		Usecase: usecases.NewInvoiceUsecase(),
 	}
-
-	webrest.AddRoutes(controller.Routes())
 }
 
-func (p *InvoiceRestController) Routes() []webrest.Route {
-	return []webrest.Route{
+func (p *InvoiceController) Routes() []restserver.Route {
+	return []restserver.Route{
 		{
 			URI:      "invoices",
 			Method:   http.MethodGet,
 			Function: p.GetAll,
-			Prefix:   webrest.PublicApi,
+			Prefix:   restserver.PublicApi,
 		},
 		{
 			URI:      "invoices/{id}/patch-payment-date",
 			Method:   http.MethodPatch,
 			Function: p.PatchPaymentDate,
-			Prefix:   webrest.PublicApi,
+			Prefix:   restserver.PublicApi,
 		},
 	}
 }
 
-func (p *InvoiceRestController) GetAll(w http.ResponseWriter, r *http.Request) {
-	list, err := p.Usecase.GetAll(r.Context())
+// @Summary Get invoice list
+// @Tags invoices
+// @Accept json
+// @Produce json
+// @Success 200 {array} models.Invoice
+// @Failure 500
+// @Router /public/invoices [get]
+func (p *InvoiceController) GetAll(ctx restserver.WebContext) {
+	list, err := p.Usecase.GetAll(ctx.Context())
 	if err != nil {
-		webrest.ErrorResponse(r, w, http.StatusInternalServerError, err)
+		ctx.ErrorResponse(http.StatusInternalServerError, err)
 		return
 	}
 
-	webrest.JsonResponse(w, http.StatusOK, list)
+	ctx.JsonResponse(http.StatusOK, list)
 }
 
-func (p *InvoiceRestController) PatchPaymentDate(w http.ResponseWriter, r *http.Request) {
-	paramId, err := uuid.Parse(webrest.GetPathParam(r, "id"))
+// @Summary Update payment date
+// @Tags invoices
+// @Accept json
+// @Produce json
+// @Success 204
+// @Failure 400
+// @Failure 422
+// @Failure 500
+// @Param id path string true "Invoice ID"
+// @Param request body models.Invoice true "request body"
+// @Router /public/invoices/{id}/patch-payment-date [patch]
+func (p *InvoiceController) PatchPaymentDate(ctx restserver.WebContext) {
+	paramId, err := uuid.Parse(ctx.PathParam("id"))
 	if err != nil {
-		webrest.ErrorResponse(r, w, http.StatusBadRequest, err)
+		ctx.ErrorResponse(http.StatusBadRequest, err)
 		return
 	}
 
-	body, err := webrest.DecodeBody[models.Invoice](r)
-	if err != nil {
-		webrest.ErrorResponse(r, w, http.StatusUnprocessableEntity, err)
+	var body models.Invoice
+	if err := ctx.DecodeBody(&body); err != nil {
+		ctx.ErrorResponse(http.StatusUnprocessableEntity, err)
 		return
 	}
 
-	if err = p.Usecase.UpdatePaymentDate(r.Context(), paramId, body.PaidAt.Time); err != nil {
-		webrest.ErrorResponse(r, w, http.StatusInternalServerError, err)
+	if err = p.Usecase.UpdatePaymentDate(ctx.Context(), paramId, body.PaidAt.Time); err != nil {
+		ctx.ErrorResponse(http.StatusInternalServerError, err)
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	ctx.EmptyResponse(http.StatusNoContent)
 }

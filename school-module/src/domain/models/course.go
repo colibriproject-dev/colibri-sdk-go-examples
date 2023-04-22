@@ -7,10 +7,10 @@ import (
 )
 
 type Course struct {
-	ID        uuid.UUID `json:"id"`
-	Name      string    `json:"name"`
-	Value     float64   `json:"value"`
-	CreatedAt time.Time `json:"createdAt"`
+	ID        uuid.UUID `json:"id" validate:"required"`
+	Name      string    `json:"name" validate:"required"`
+	Value     float64   `json:"value" validate:"required"`
+	CreatedAt time.Time `json:"createdAt" validate:"required"`
 }
 
 type CourseCreateUpdateDTO struct {

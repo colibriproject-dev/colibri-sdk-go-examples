@@ -2,148 +2,177 @@ package controllers
 
 import (
 	"net/http"
-	"school-module/src/domain/models"
-	"school-module/src/domain/usecases"
 
-	"github.com/colibri-project-io/colibri-sdk-go/pkg/web/webrest"
+	"github.com/colibri-project-io/colibri-sdk-go-examples/school-module/src/domain/models"
+	"github.com/colibri-project-io/colibri-sdk-go-examples/school-module/src/domain/usecases"
+	"github.com/colibri-project-io/colibri-sdk-go/pkg/web/restserver"
 	"github.com/google/uuid"
 )
 
-type ICourseController interface {
-	Routes() []webrest.Route
-	GetAll(w http.ResponseWriter, r *http.Request)
-	GetById(w http.ResponseWriter, r *http.Request)
-	Post(w http.ResponseWriter, r *http.Request)
-	Put(w http.ResponseWriter, r *http.Request)
-	Delete(w http.ResponseWriter, r *http.Request)
-}
-
 type CourseController struct {
-	Usecase usecases.ICourseUsecase
+	Usecase usecases.ICourseUsecases
 }
 
-func NewCourseController() {
-	controller := &CourseController{
-		Usecase: usecases.NewCourseUsecase(),
+func NewCourseController() *CourseController {
+	return &CourseController{
+		Usecase: usecases.NewCourseUsecases(),
 	}
-
-	webrest.AddRoutes(controller.Routes())
 }
 
-func (c *CourseController) Routes() []webrest.Route {
-	return []webrest.Route{
-		{
-			URI:      "courses",
-			Method:   http.MethodPost,
-			Function: c.Post,
-			Prefix:   webrest.PublicApi,
-		},
+func (c *CourseController) Routes() []restserver.Route {
+	return []restserver.Route{
 		{
 			URI:      "courses",
 			Method:   http.MethodGet,
 			Function: c.GetAll,
-			Prefix:   webrest.PublicApi,
+			Prefix:   restserver.PublicApi,
 		},
 		{
 			URI:      "courses/{id}",
 			Method:   http.MethodGet,
 			Function: c.GetById,
-			Prefix:   webrest.PublicApi,
+			Prefix:   restserver.PublicApi,
+		},
+		{
+			URI:      "courses",
+			Method:   http.MethodPost,
+			Function: c.Post,
+			Prefix:   restserver.PublicApi,
 		},
 		{
 			URI:      "courses/{id}",
 			Method:   http.MethodPut,
 			Function: c.Put,
-			Prefix:   webrest.PublicApi,
+			Prefix:   restserver.PublicApi,
 		},
 		{
 			URI:      "courses/{id}",
 			Method:   http.MethodDelete,
 			Function: c.Delete,
-			Prefix:   webrest.PublicApi,
+			Prefix:   restserver.PublicApi,
 		},
 	}
 }
 
-func (c *CourseController) GetAll(w http.ResponseWriter, r *http.Request) {
-	result, err := c.Usecase.GetAll(r.Context())
+// @Summary Get courses list
+// @Tags courses
+// @Accept json
+// @Produce json
+// @Success 200 {array} models.Course
+// @Failure 500
+// @Router /public/courses [get]
+func (c *CourseController) GetAll(ctx restserver.WebContext) {
+	result, err := c.Usecase.GetAll(ctx.Context())
 	if err != nil {
-		webrest.ErrorResponse(r, w, http.StatusInternalServerError, err)
+		ctx.ErrorResponse(http.StatusInternalServerError, err)
 		return
 	}
 
-	webrest.JsonResponse(w, http.StatusOK, result)
+	ctx.JsonResponse(http.StatusOK, result)
 }
 
-func (c *CourseController) GetById(w http.ResponseWriter, r *http.Request) {
-	paramId, err := uuid.Parse(webrest.GetPathParam(r, "id"))
+// @Summary Get course by id
+// @Tags courses
+// @Accept json
+// @Produce json
+// @Success 200 {object} models.Course
+// @Failure 400
+// @Failure 500
+// @Param id path string true "Course ID"
+// @Router /public/courses/{id} [get]
+func (c *CourseController) GetById(ctx restserver.WebContext) {
+	paramId, err := uuid.Parse(ctx.PathParam("id"))
 	if err != nil {
-		webrest.ErrorResponse(r, w, http.StatusBadRequest, err)
+		ctx.ErrorResponse(http.StatusBadRequest, err)
 		return
 	}
 
-	result, err := c.Usecase.GetById(r.Context(), paramId)
+	result, err := c.Usecase.GetById(ctx.Context(), paramId)
 	if err != nil {
-		webrest.ErrorResponse(r, w, http.StatusInternalServerError, err)
+		ctx.ErrorResponse(http.StatusInternalServerError, err)
 		return
 	}
 
-	if result == nil {
-		w.WriteHeader(http.StatusNoContent)
-		return
-	}
-
-	webrest.JsonResponse(w, http.StatusOK, result)
+	ctx.JsonResponse(http.StatusOK, result)
 }
 
-func (c *CourseController) Post(w http.ResponseWriter, r *http.Request) {
-	body, err := webrest.DecodeBody[models.CourseCreateUpdateDTO](r)
-	if err != nil {
-		webrest.ErrorResponse(r, w, http.StatusUnprocessableEntity, err)
+// @Summary Course create
+// @Tags courses
+// @Accept json
+// @Produce json
+// @Success 201 {object} models.Course
+// @Failure 422
+// @Failure 500
+// @Param request body models.CourseCreateUpdateDTO true "request body"
+// @Router /public/courses [post]
+func (c *CourseController) Post(ctx restserver.WebContext) {
+	var body models.CourseCreateUpdateDTO
+	if err := ctx.DecodeBody(&body); err != nil {
+		ctx.ErrorResponse(http.StatusUnprocessableEntity, err)
 		return
 	}
 
-	id, err := c.Usecase.Create(r.Context(), body)
+	id, err := c.Usecase.Create(ctx.Context(), &body)
 	if err != nil {
-		webrest.ErrorResponse(r, w, http.StatusInternalServerError, err)
+		ctx.ErrorResponse(http.StatusInternalServerError, err)
 		return
 	}
 
-	webrest.JsonResponse(w, http.StatusCreated, id)
+	ctx.JsonResponse(http.StatusCreated, id)
 }
 
-func (c *CourseController) Put(w http.ResponseWriter, r *http.Request) {
-	paramId, err := uuid.Parse(webrest.GetPathParam(r, "id"))
+// @Summary Course update
+// @Tags courses
+// @Accept json
+// @Produce json
+// @Success 204
+// @Failure 400
+// @Failure 422
+// @Failure 500
+// @Param id path string true "Course ID"
+// @Param request body models.CourseCreateUpdateDTO true "request body"
+// @Router /public/courses/{id} [put]
+func (c *CourseController) Put(ctx restserver.WebContext) {
+	paramId, err := uuid.Parse(ctx.PathParam("id"))
 	if err != nil {
-		webrest.ErrorResponse(r, w, http.StatusBadRequest, err)
+		ctx.ErrorResponse(http.StatusBadRequest, err)
 		return
 	}
 
-	body, err := webrest.DecodeBody[models.CourseCreateUpdateDTO](r)
-	if err != nil {
-		webrest.ErrorResponse(r, w, http.StatusUnprocessableEntity, err)
+	var body models.CourseCreateUpdateDTO
+	if err := ctx.DecodeBody(&body); err != nil {
+		ctx.ErrorResponse(http.StatusUnprocessableEntity, err)
 		return
 	}
 
-	if err = c.Usecase.Update(r.Context(), paramId, body); err != nil {
-		webrest.ErrorResponse(r, w, http.StatusInternalServerError, err)
+	if err = c.Usecase.Update(ctx.Context(), paramId, &body); err != nil {
+		ctx.ErrorResponse(http.StatusInternalServerError, err)
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	ctx.EmptyResponse(http.StatusNoContent)
 }
 
-func (c *CourseController) Delete(w http.ResponseWriter, r *http.Request) {
-	paramId, err := uuid.Parse(webrest.GetPathParam(r, "id"))
+// @Summary Course delete
+// @Tags courses
+// @Accept json
+// @Produce json
+// @Success 204
+// @Failure 400
+// @Failure 500
+// @Param id path string true "Course ID"
+// @Router /public/courses/{id} [delete]
+func (c *CourseController) Delete(ctx restserver.WebContext) {
+	paramId, err := uuid.Parse(ctx.PathParam("id"))
 	if err != nil {
-		webrest.ErrorResponse(r, w, http.StatusBadRequest, err)
+		ctx.ErrorResponse(http.StatusBadRequest, err)
 		return
 	}
 
-	if err = c.Usecase.Delete(r.Context(), paramId); err != nil {
-		webrest.ErrorResponse(r, w, http.StatusInternalServerError, err)
+	if err = c.Usecase.Delete(ctx.Context(), paramId); err != nil {
+		ctx.ErrorResponse(http.StatusInternalServerError, err)
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	ctx.EmptyResponse(http.StatusNoContent)
 }

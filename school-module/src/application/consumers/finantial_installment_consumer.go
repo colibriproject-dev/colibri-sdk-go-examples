@@ -2,33 +2,27 @@ package consumers
 
 import (
 	"context"
-	"school-module/src/domain/models"
-	"school-module/src/domain/usecases"
 
+	"github.com/colibri-project-io/colibri-sdk-go-examples/school-module/src/domain/models"
+	"github.com/colibri-project-io/colibri-sdk-go-examples/school-module/src/domain/usecases"
 	"github.com/colibri-project-io/colibri-sdk-go/pkg/messaging"
 )
 
-type IFinantialInstallmentConsumer interface {
-	Update(ctx context.Context, message *messaging.ProviderMessage) error
-}
-
 type FinantialInstallmentConsumer struct {
-	QueueName string
-	Usecase   usecases.IEnrollmentUsecase
+	queueName string
+	Usecase   usecases.IEnrollmentUsecases
 }
 
-func NewFinantialInstallmentConsumer() {
-	consumer := FinantialInstallmentConsumer{
-		QueueName: "FINANCIAL_INSTALLMENT_SCHOOL",
-		Usecase:   usecases.NewEnrollmentUsecase(),
+func NewFinantialInstallmentConsumer() messaging.QueueConsumer {
+	return &FinantialInstallmentConsumer{
+		queueName: "FINANCIAL_INSTALLMENT_SCHOOL",
+		Usecase:   usecases.NewEnrollmentUsecases(),
 	}
-
-	messaging.AddConsumer(messaging.NewConsumer(consumer.QueueName, consumer.Update))
 }
 
-func (c *FinantialInstallmentConsumer) Update(ctx context.Context, message *messaging.ProviderMessage) error {
+func (c *FinantialInstallmentConsumer) Consume(ctx context.Context, providerMessage *messaging.ProviderMessage) error {
 	var model models.Account
-	if err := message.DecodeMessage(&model); err != nil {
+	if err := providerMessage.DecodeMessage(&model); err != nil {
 		return err
 	}
 
@@ -37,4 +31,8 @@ func (c *FinantialInstallmentConsumer) Update(ctx context.Context, message *mess
 	}
 
 	return nil
+}
+
+func (c *FinantialInstallmentConsumer) QueueName() string {
+	return c.queueName
 }

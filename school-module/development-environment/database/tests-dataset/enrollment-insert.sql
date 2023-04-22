@@ -1,0 +1,3 @@
+INSERT INTO enrollments (student_id, course_id, installments, status, created_at) VALUES('53bb5356-e900-4929-8d4d-debe31da40bb', '64bb5356-e900-4929-8d4d-debe31da40cc', 10, 'ADIMPLENTE', '2023-09-14 10:00:00');
+INSERT INTO enrollments (student_id, course_id, installments, status, created_at) VALUES('9219ea44-b0d6-4726-85a0-bbacf16dbe35', '0319ea44-b0d6-4726-85a0-bbacf16dbe46', 5, 'ADIMPLENTE', '2023-09-15 16:00:00');
+INSERT INTO enrollments (student_id, course_id, installments, status, created_at) VALUES('f590b3a4-fc3e-45e2-9131-1730a58ad9a3', 'f600b3a4-fc3e-45e2-9131-1730a58ad9b4', 1, 'INADIMPLENTE', '2023-09-16 18:00:00');

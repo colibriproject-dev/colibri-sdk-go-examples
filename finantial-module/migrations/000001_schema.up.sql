@@ -1,7 +1,7 @@
-\connect finantial_module;
-
+-- CREATE UUID EXTENSION
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- CREATE TYPES
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'ACCOUNT_STATUS') THEN
@@ -10,6 +10,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- CREATE SCHEMA
 CREATE TABLE accounts (
     id           UUID           NOT NULL DEFAULT uuid_generate_v1mc(),
     student_id   UUID           NOT NULL,

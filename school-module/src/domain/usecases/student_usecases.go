@@ -1,16 +1,17 @@
+//go:generate mockgen -source student_usecases.go -destination mock/student_usecases_mock.go -package mock
 package usecases
 
 import (
 	"context"
 	"mime/multipart"
-	"school-module/src/domain/models"
-	"school-module/src/infra/producers"
-	"school-module/src/infra/repositories"
 
+	"github.com/colibri-project-io/colibri-sdk-go-examples/school-module/src/domain/models"
+	"github.com/colibri-project-io/colibri-sdk-go-examples/school-module/src/infra/producers"
+	"github.com/colibri-project-io/colibri-sdk-go-examples/school-module/src/infra/repositories"
 	"github.com/google/uuid"
 )
 
-type IStudentUsecase interface {
+type IStudentUsecases interface {
 	GetAll(ctx context.Context, params *models.StudentParams) ([]models.Student, error)
 	GetById(ctx context.Context, id uuid.UUID) (*models.Student, error)
 	Create(ctx context.Context, model *models.StudentCreateUpdateDTO) error
@@ -19,35 +20,35 @@ type IStudentUsecase interface {
 	UploadDocument(ctx context.Context, id uuid.UUID, file *multipart.File) (string, error)
 }
 
-type StudentUsecase struct {
-	Repository repositories.IStudentRepository
-	Producer   producers.IStudentProducer
+type StudentUsecases struct {
+	Repository repositories.StudentRepository
+	Producer   producers.IStudentDeletedProducer
 }
 
-func NewStudentUsecase() *StudentUsecase {
-	return &StudentUsecase{
-		Repository: repositories.NewStudentRepository(),
-		Producer:   producers.NewStudentProducer(),
+func NewStudentUsecases() *StudentUsecases {
+	return &StudentUsecases{
+		Repository: repositories.NewStudentDBAndStorageRepository(),
+		Producer:   producers.NewStudentDeletedProducer(),
 	}
 }
 
-func (u *StudentUsecase) GetAll(ctx context.Context, params *models.StudentParams) ([]models.Student, error) {
+func (u *StudentUsecases) GetAll(ctx context.Context, params *models.StudentParams) ([]models.Student, error) {
 	return u.Repository.FindAll(ctx, params)
 }
 
-func (u *StudentUsecase) GetById(ctx context.Context, id uuid.UUID) (*models.Student, error) {
+func (u *StudentUsecases) GetById(ctx context.Context, id uuid.UUID) (*models.Student, error) {
 	return u.Repository.FindById(ctx, id)
 }
 
-func (u *StudentUsecase) Create(ctx context.Context, model *models.StudentCreateUpdateDTO) error {
+func (u *StudentUsecases) Create(ctx context.Context, model *models.StudentCreateUpdateDTO) error {
 	return u.Repository.Insert(ctx, model)
 }
 
-func (u *StudentUsecase) Update(ctx context.Context, id uuid.UUID, model *models.StudentCreateUpdateDTO) error {
+func (u *StudentUsecases) Update(ctx context.Context, id uuid.UUID, model *models.StudentCreateUpdateDTO) error {
 	return u.Repository.Update(ctx, id, model)
 }
 
-func (u *StudentUsecase) Delete(ctx context.Context, id uuid.UUID) error {
+func (u *StudentUsecases) Delete(ctx context.Context, id uuid.UUID) error {
 	if err := u.Repository.Delete(ctx, id); err != nil {
 		return err
 	}
@@ -57,6 +58,6 @@ func (u *StudentUsecase) Delete(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-func (u *StudentUsecase) UploadDocument(ctx context.Context, id uuid.UUID, file *multipart.File) (string, error) {
+func (u *StudentUsecases) UploadDocument(ctx context.Context, id uuid.UUID, file *multipart.File) (string, error) {
 	return u.Repository.UploadDocument(ctx, id, file)
 }
