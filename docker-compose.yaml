@@ -2,20 +2,31 @@ version: "3"
 
 services:
   localstack:
-    image: localstack/localstack:1.4
+    image: localstack/localstack:3.1
     ports:
       - "127.0.0.1:4510-4559:4510-4559"  # external service port range
       - "127.0.0.1:4566:4566"            # LocalStack Edge Proxy
     environment:
-      - DEBUG=${DEBUG-}
-      - SERVICES=sns,sqs,s3
-      - DATA_DIR=${DATA_DIR-}
-      - LAMBDA_EXECUTOR=${LAMBDA_EXECUTOR-}
-      - HOST_TMP_FOLDER=${TMPDIR:-/tmp/}localstack
-      - DOCKER_HOST=unix:///var/run/docker.sock
+      - DEBUG=${DEBUG:-0}
+      - SERVICES=sns,sqs,s3,lambda
     volumes:
-      - "${PWD}/dev/localstack:/docker-entrypoint-initaws.d/"
+      - "${TMPDIR:-/tmp}/localstack:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
+      - ./localstack:/etc/localstack/init/ready.d
+    networks:
+      - dev
+
+  localstack-web:
+    image: dantasrafael/localstack-web:0.0.1
+    ports:
+      - "3000:80"
+    environment:
+      - VITE_LOCALSTACK_ENDPOINT=http://localhost:4566
+      - VITE_AWS_DEFAULT_REGION=us-east-1
+      - VITE_AWS_ACCESS_KEY_ID=test
+      - VITE_AWS_SECRET_ACCESS_KEY=test
+    depends_on:
+      - localstack
     networks:
       - dev
 
@@ -27,7 +38,7 @@ services:
       - dev
 
   postgres:
-    image: postgres:14-alpine
+    image: postgres:17-alpine
     ports:
       - "5432:5432"
     environment:

@@ -5,9 +5,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/colibri-project-io/colibri-sdk-go/pkg/base/test"
-	"github.com/colibri-project-io/colibri-sdk-go/pkg/database/sqlDB"
-	"github.com/colibri-project-io/colibri-sdk-go/pkg/storage"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/base/test"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/database/sqlDB"
 )
 
 var (
@@ -20,11 +19,8 @@ func TestMain(m *testing.M) {
 	os.Setenv("MIGRATION_SOURCE_URL", "../../../migrations")
 	test.InitializeSqlDBTest()
 	basePath = test.MountAbsolutPath("../../../development-environment/database/tests-dataset/")
-	pc = test.UsePostgresContainer()
+	pc = test.UsePostgresContainer(context.Background())
 	sqlDB.Initialize()
-
-	test.InitializeTestLocalstack(test.MountAbsolutPath("../../../development-environment/localstack"))
-	storage.Initialize()
 
 	m.Run()
 }

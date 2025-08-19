@@ -1,15 +1,15 @@
-//go:generate mockgen -source student_deleted_producer.go -destination mock/student_deleted_producer_mock.go -package mock
+//go:generate mockgen -source student_deleted_producer.go -destination mock/student_deleted_producer_mock.go -package producersmock
 package producers
 
 import (
 	"context"
 
-	"github.com/colibri-project-io/colibri-sdk-go-examples/school-module/src/domain/models"
-	"github.com/colibri-project-io/colibri-sdk-go/pkg/messaging"
+	"github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/domain/models"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/messaging"
 )
 
 type IStudentDeletedProducer interface {
-	Delete(ctx context.Context, model *models.Student) error
+	Send(ctx context.Context, model *models.StudentDelete) error
 }
 
 type StudentDeletedProducer struct {
@@ -20,6 +20,6 @@ func NewStudentDeletedProducer() *StudentDeletedProducer {
 	return &StudentDeletedProducer{messaging.NewProducer("SCHOOL_STUDENT_DELETED")}
 }
 
-func (p *StudentDeletedProducer) Delete(ctx context.Context, model *models.Student) error {
+func (p *StudentDeletedProducer) Send(ctx context.Context, model *models.StudentDelete) error {
 	return p.producer.Publish(ctx, "DELETE_STUDENT", model)
 }

@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/colibri-project-io/colibri-sdk-go/pkg/base/test"
-	"github.com/colibri-project-io/colibri-sdk-go/pkg/messaging"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/base/test"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/messaging"
 )
 
 var (

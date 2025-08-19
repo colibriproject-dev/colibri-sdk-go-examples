@@ -1,15 +1,15 @@
-//go:generate mockgen -source enrollment_created_producer.go -destination mock/enrollment_created_producer_mock.go -package mock
+//go:generate mockgen -source enrollment_created_producer.go -destination mock/enrollment_created_producer_mock.go -package producersmock
 package producers
 
 import (
 	"context"
 
-	"github.com/colibri-project-io/colibri-sdk-go-examples/school-module/src/domain/models"
-	"github.com/colibri-project-io/colibri-sdk-go/pkg/messaging"
+	"github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/domain/models"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/messaging"
 )
 
 type IEnrollmentCreatedProducer interface {
-	Create(ctx context.Context, model *models.Enrollment) error
+	Send(ctx context.Context, model *models.EnrollmentCreated) error
 }
 
 type EnrollmentCreatedProducer struct {
@@ -20,6 +20,6 @@ func NewEnrollmentCreatedProducer() *EnrollmentCreatedProducer {
 	return &EnrollmentCreatedProducer{messaging.NewProducer("SCHOOL_ENROLLMENT_CREATED")}
 }
 
-func (p *EnrollmentCreatedProducer) Create(ctx context.Context, model *models.Enrollment) error {
+func (p *EnrollmentCreatedProducer) Send(ctx context.Context, model *models.EnrollmentCreated) error {
 	return p.producer.Publish(ctx, "CREATE_ENROLLMENT", model)
 }
