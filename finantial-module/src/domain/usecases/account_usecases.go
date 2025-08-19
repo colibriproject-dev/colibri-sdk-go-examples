@@ -1,11 +1,13 @@
+//go:generate mockgen -source account_usecases.go -destination mock/account_usecases_mock.go -package usecasesmock
 package usecases
 
 import (
 	"context"
-	"finantial-module/src/domain/models"
-	"finantial-module/src/infra/repositories"
 	"time"
 
+	"github.com/colibriproject-dev/colibri-sdk-go-examples/finantial-module/src/domain/enums"
+	"github.com/colibriproject-dev/colibri-sdk-go-examples/finantial-module/src/domain/models"
+	"github.com/colibriproject-dev/colibri-sdk-go-examples/finantial-module/src/infra/repositories"
 	"github.com/google/uuid"
 )
 
@@ -35,7 +37,7 @@ func (u *AccountUsecase) GetAll(ctx context.Context) ([]models.Account, error) {
 
 func (u *AccountUsecase) Create(ctx context.Context, model *models.Account) error {
 	model.ID = uuid.New()
-	model.Status = models.ADIMPLENTE
+	model.Status = enums.ADIMPLENTE
 	model.CreatedAt = time.Now()
 
 	if err := u.Repository.Insert(ctx, model); err != nil {

@@ -1,13 +1,12 @@
 package main
 
 import (
-	"finantial-module/src/application/consumers"
-	"finantial-module/src/application/controllers"
-
-	"github.com/colibri-project-io/colibri-sdk-go"
-	"github.com/colibri-project-io/colibri-sdk-go/pkg/database/sqlDB"
-	"github.com/colibri-project-io/colibri-sdk-go/pkg/messaging"
-	"github.com/colibri-project-io/colibri-sdk-go/pkg/web/restserver"
+	"github.com/colibriproject-dev/colibri-sdk-go"
+	"github.com/colibriproject-dev/colibri-sdk-go-examples/finantial-module/src/application/consumers"
+	"github.com/colibriproject-dev/colibri-sdk-go-examples/finantial-module/src/application/controllers"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/database/sqlDB"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/messaging"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/web/restserver"
 )
 
 func init() {

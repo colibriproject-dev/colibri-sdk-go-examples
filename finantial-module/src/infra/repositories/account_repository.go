@@ -1,10 +1,11 @@
+//go:generate mockgen -source account_repository.go -destination mock/account_repository_mock.go -package repositoriesmock
 package repositories
 
 import (
 	"context"
-	"finantial-module/src/domain/models"
 
-	"github.com/colibri-project-io/colibri-sdk-go/pkg/database/sqlDB"
+	"github.com/colibriproject-dev/colibri-sdk-go-examples/finantial-module/src/domain/models"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/database/sqlDB"
 	"github.com/google/uuid"
 )
 

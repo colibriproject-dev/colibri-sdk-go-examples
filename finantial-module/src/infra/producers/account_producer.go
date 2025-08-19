@@ -1,10 +1,11 @@
+//go:generate mockgen -source account_producer.go -destination mock/account_producer_mock.go -package producersmock
 package producers
 
 import (
 	"context"
-	"finantial-module/src/domain/models"
 
-	"github.com/colibri-project-io/colibri-sdk-go/pkg/messaging"
+	"github.com/colibriproject-dev/colibri-sdk-go-examples/finantial-module/src/domain/models"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/messaging"
 )
 
 const (

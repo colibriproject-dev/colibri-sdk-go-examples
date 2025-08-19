@@ -1,11 +1,11 @@
 package controllers
 
 import (
-	"finantial-module/src/domain/models"
-	"finantial-module/src/domain/usecases"
 	"net/http"
 
-	"github.com/colibri-project-io/colibri-sdk-go/pkg/web/restserver"
+	"github.com/colibriproject-dev/colibri-sdk-go-examples/finantial-module/src/domain/models"
+	"github.com/colibriproject-dev/colibri-sdk-go-examples/finantial-module/src/domain/usecases"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/web/restserver"
 	"github.com/google/uuid"
 )
 

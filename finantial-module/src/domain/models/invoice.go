@@ -4,18 +4,18 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/colibri-project-io/colibri-sdk-go/pkg/base/types"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/base/types"
 	"github.com/google/uuid"
 )
 
 type Invoice struct {
-	ID          uuid.UUID      `json:"id"`
-	Account     Account        `json:"account"`
-	Installment uint8          `json:"installment"`
-	DueDate     time.Time      `json:"dueDate"`
-	Value       float64        `json:"value"`
-	CreatedAt   time.Time      `json:"createdAt"`
-	PaidAt      types.NullTime `json:"paidAt"`
+	ID          uuid.UUID         `json:"id"`
+	Account     Account           `json:"account"`
+	Installment uint8             `json:"installment"`
+	DueDate     time.Time         `json:"dueDate"`
+	Value       float64           `json:"value"`
+	CreatedAt   time.Time         `json:"createdAt"`
+	PaidAt      types.NullIsoTime `json:"paidAt"`
 }
 
 func (i *Invoice) Prepare() error {
