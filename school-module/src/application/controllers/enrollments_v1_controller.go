@@ -86,7 +86,7 @@ func (c *EnrollmentsV1Controller) GetAllPaginatedEnrollment(wctx restserver.WebC
 // @Failure 409
 // @Failure 422
 // @Failure 500
-// @Param request body models.EnrollmentCreateDTO true "request body"
+// @Param request body models.EnrollmentCreate true "request body"
 // @Router /public/v1/enrollments [post]
 func (c *EnrollmentsV1Controller) CreateEnrollment(wctx restserver.WebContext) {
 	var body models.EnrollmentCreate
