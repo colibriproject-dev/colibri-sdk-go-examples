@@ -1,4 +1,4 @@
-# FROM golang:1.20-alpine3.17 AS builder
+# FROM golang:1.24-alpine3.19 AS builder
 # ARG SRC_PATH=.
 # ENV GO111MODULE=on
 # COPY ../colibri-sdk-go/ /colibri-sdk-go/
@@ -7,7 +7,7 @@
 # RUN go mod download
 # RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -buildvcs=false -ldflags="-w -s" -o application
 
-FROM alpine:3.17 AS dist
+FROM alpine:3.19 AS dist
 ARG APP_SRC=.
 RUN apk add --no-cache tzdata
 ENV TZ=America/Sao_Paulo

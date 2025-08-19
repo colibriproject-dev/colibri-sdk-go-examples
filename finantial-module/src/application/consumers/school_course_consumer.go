@@ -2,10 +2,10 @@ package consumers
 
 import (
 	"context"
-	"finantial-module/src/domain/models"
-	"finantial-module/src/domain/usecases"
 
-	"github.com/colibri-project-io/colibri-sdk-go/pkg/messaging"
+	"github.com/colibriproject-dev/colibri-sdk-go-examples/finantial-module/src/domain/models"
+	"github.com/colibriproject-dev/colibri-sdk-go-examples/finantial-module/src/domain/usecases"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/messaging"
 )
 
 type SchoolCourseConsumer struct {

@@ -1,0 +1,2 @@
+-- DROP uuid-ossp EXTENSION
+DROP EXTENSION IF EXISTS "uuid-ossp";

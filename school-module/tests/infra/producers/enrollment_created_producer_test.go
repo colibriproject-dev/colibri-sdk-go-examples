@@ -1,53 +1,40 @@
 package producers
 
 import (
-	"math/rand"
 	"testing"
 	"time"
 
-	"github.com/colibri-project-io/colibri-sdk-go-examples/school-module/src/domain/models"
-	"github.com/colibri-project-io/colibri-sdk-go-examples/school-module/src/infra/producers"
-	"github.com/colibri-project-io/colibri-sdk-go/pkg/messaging"
+	"github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/domain/enums"
+	"github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/domain/models"
+	"github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/infra/producers"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/messaging"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestEnrollmentCreatedProducer(t *testing.T) {
-	const testTopic string = "SCHOOL_ENROLLMENT_CREATED_TOPIC_TEST"
-
-	t.Run("should return new enrollment created producer", func(t *testing.T) {
-		producer := producers.NewEnrollmentCreatedProducer()
-
-		assert.NotNil(t, producer)
-	})
+func TestEnrollmentCreatedProducer_Send(t *testing.T) {
+	const testQueue string = "SCHOOL_ENROLLMENT_CREATED_TOPIC_TEST"
 
 	t.Run("should send message", func(t *testing.T) {
-		expected := &models.Enrollment{
-			Student: models.Student{
-				ID:        uuid.New(),
-				Name:      "New Student",
-				Email:     "new.student@email.com",
-				Birthday:  time.Now().UTC().Add(-1 * time.Hour),
-				CreatedAt: time.Now().UTC(),
+		expected := &models.EnrollmentCreated{
+			Student: models.EnrollmentCreatedStudent{
+				ID: uuid.New(),
 			},
-			Course: models.Course{
-				ID:        uuid.New(),
-				Name:      "New Course",
-				Value:     rand.Float64(),
-				CreatedAt: time.Now().UTC(),
+			Course: models.EnrollmentCreatedCourse{
+				ID: uuid.New(),
 			},
 			Installments: uint8(1),
-			Status:       models.ADIMPLENTE,
+			Status:       enums.ADIMPLENTE,
 			CreatedAt:    time.Now().UTC(),
 		}
 
 		producerFn := func() error {
-			return producers.NewEnrollmentCreatedProducer().Create(ctx, expected)
+			return producers.NewEnrollmentCreatedProducer().Send(ctx, expected)
 		}
-		resp, err := messaging.NewTestProducer[models.Enrollment](producerFn, testTopic, 10).Execute()
+		resp, err := messaging.NewTestProducer[models.EnrollmentCreated](producerFn, testQueue, 10).Execute()
 
 		assert.NoError(t, err)
 		assert.NotNil(t, resp)
-		assert.Equal(t, expected, resp)
+		assert.EqualValues(t, expected, resp)
 	})
 }

@@ -6,10 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/colibri-project-io/colibri-sdk-go-examples/school-module/src/application/consumers"
-	"github.com/colibri-project-io/colibri-sdk-go-examples/school-module/src/domain/models"
-	"github.com/colibri-project-io/colibri-sdk-go-examples/school-module/src/domain/usecases/mock"
-	"github.com/colibri-project-io/colibri-sdk-go/pkg/messaging"
+	"github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/application/consumers"
+	"github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/domain/enums"
+	"github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/domain/models"
+	usecasesmock "github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/domain/usecases/mock"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/messaging"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -31,14 +32,14 @@ func TestAccountancyCreatedConsumer(t *testing.T) {
 			CourseID:     uuid.New(),
 			Installments: uint8(rand.Int()),
 			Value:        rand.Float64(),
-			Status:       models.ADIMPLENTE,
+			Status:       enums.ADIMPLENTE,
 			CreatedAt:    time.Now(),
 		},
 	}
 
 	controller := gomock.NewController(t)
-	mockUsecase := mock.NewMockIEnrollmentUsecases(controller)
-	consumer := consumers.FinantialInstallmentConsumer{Usecase: mockUsecase}
+	mockUpdateEnrollmentStatusUsecase := usecasesmock.NewMockIUpdateEnrollmentStatusUsecase(controller)
+	consumer := consumers.FinantialInstallmentConsumer{UpdateEnrollmentStatusUsecase: mockUpdateEnrollmentStatusUsecase}
 	defer controller.Finish()
 
 	t.Run("Should return error when occurred error in DecodeMessage", func(t *testing.T) {
@@ -48,14 +49,14 @@ func TestAccountancyCreatedConsumer(t *testing.T) {
 
 	t.Run("Should return error when occurred error in UpdateStatus", func(t *testing.T) {
 		expected := errors.New("mock error in UpdateStatus")
-		mockUsecase.EXPECT().UpdateStatus(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(expected)
+		mockUpdateEnrollmentStatusUsecase.EXPECT().Execute(gomock.Any(), gomock.Any()).Return(expected)
 
 		err := consumer.Consume(ctx, providerMessageMock)
 		assert.Error(t, expected, err)
 	})
 
 	t.Run("Should consume message and update enrollment status", func(t *testing.T) {
-		mockUsecase.EXPECT().UpdateStatus(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+		mockUpdateEnrollmentStatusUsecase.EXPECT().Execute(gomock.Any(), gomock.Any()).Return(nil)
 
 		err := consumer.Consume(ctx, providerMessageMock)
 		assert.NoError(t, err)

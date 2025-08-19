@@ -1,14 +1,16 @@
 package main
 
 import (
-	"github.com/colibri-project-io/colibri-sdk-go"
-	"github.com/colibri-project-io/colibri-sdk-go-examples/school-module/src/application/consumers"
-	"github.com/colibri-project-io/colibri-sdk-go-examples/school-module/src/application/controllers"
-	"github.com/colibri-project-io/colibri-sdk-go/pkg/database/cacheDB"
-	"github.com/colibri-project-io/colibri-sdk-go/pkg/database/sqlDB"
-	"github.com/colibri-project-io/colibri-sdk-go/pkg/messaging"
-	"github.com/colibri-project-io/colibri-sdk-go/pkg/storage"
-	"github.com/colibri-project-io/colibri-sdk-go/pkg/web/restserver"
+	"github.com/colibriproject-dev/colibri-sdk-go"
+	"github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/application/consumers"
+	"github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/application/controllers"
+	"github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/domain/enums"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/base/validator"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/database/cacheDB"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/database/sqlDB"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/messaging"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/storage"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/web/restserver"
 )
 
 func init() {
@@ -23,10 +25,23 @@ func init() {
 // @version 1.0
 // @description Microservice responsible for school management
 func main() {
-	messaging.NewConsumer(consumers.NewFinantialInstallmentConsumer())
+	registerCustomValidators()
+	registerConsumers()
+	registerRoutes()
 
-	restserver.AddRoutes(controllers.NewCourseController().Routes())
-	restserver.AddRoutes(controllers.NewStudentController().Routes())
-	restserver.AddRoutes(controllers.NewEnrollmentController().Routes())
 	restserver.ListenAndServe()
+}
+
+func registerCustomValidators() {
+	validator.RegisterCustomValidation("oneOfEnrollmentStatus", enums.EnrollmentStatusValidator)
+}
+
+func registerConsumers() {
+	messaging.NewConsumer(consumers.NewFinantialInstallmentConsumer())
+}
+
+func registerRoutes() {
+	restserver.AddRoutes(controllers.NewCoursesV1Controller().Routes())
+	restserver.AddRoutes(controllers.NewStudentController().Routes())
+	restserver.AddRoutes(controllers.NewEnrollmentsV1Controller().Routes())
 }

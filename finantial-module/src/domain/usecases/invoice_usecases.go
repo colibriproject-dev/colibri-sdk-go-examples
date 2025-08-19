@@ -1,13 +1,15 @@
+//go:generate mockgen -source invoice_usecases.go -destination mock/invoice_usecases_mock.go -package usecasesmock
 package usecases
 
 import (
 	"context"
 	"errors"
-	"finantial-module/src/domain/models"
-	"finantial-module/src/infra/producers"
-	"finantial-module/src/infra/repositories"
 	"time"
 
+	"github.com/colibriproject-dev/colibri-sdk-go-examples/finantial-module/src/domain/enums"
+	"github.com/colibriproject-dev/colibri-sdk-go-examples/finantial-module/src/domain/models"
+	"github.com/colibriproject-dev/colibri-sdk-go-examples/finantial-module/src/infra/producers"
+	"github.com/colibriproject-dev/colibri-sdk-go-examples/finantial-module/src/infra/repositories"
 	"github.com/google/uuid"
 )
 
@@ -64,7 +66,7 @@ func (u *InvoiceUsecase) ProcessAllOverdueInvoices(ctx context.Context) error {
 			StudentID:    invoice.StudentID,
 			CourseID:     invoice.CourseID,
 			Installments: invoice.Installments,
-			Status:       models.INADIMPLENTE,
+			Status:       enums.INADIMPLENTE,
 		}
 
 		u.AccountRepository.UpdateStatus(ctx, account)
@@ -89,11 +91,11 @@ func (u *InvoiceUsecase) UpdatePaymentDate(ctx context.Context, id uuid.UUID, pa
 		return err
 	}
 
-	if invoice.Account.Status == models.INADIMPLENTE {
+	if invoice.Account.Status == enums.INADIMPLENTE {
 		total, _ := u.InvoiceRepository.FindTotalOverdueInvoicesByAccount(ctx, invoice.Account.ID)
 
 		if *total == 0 {
-			invoice.Account.Status = models.ADIMPLENTE
+			invoice.Account.Status = enums.ADIMPLENTE
 			u.AccountRepository.UpdateStatus(ctx, &invoice.Account)
 			u.AccountProducer.StatusUpdated(ctx, &invoice.Account)
 		}
