@@ -3,8 +3,10 @@ package repositories
 
 import (
 	"context"
+	"time"
 
 	"github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/domain/models"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/database/cacheDB"
 	"github.com/colibriproject-dev/colibri-sdk-go/pkg/database/sqlDB"
 	"github.com/google/uuid"
 )
@@ -43,7 +45,8 @@ func (r *CoursesDBRepository) FindAll(ctx context.Context) ([]models.Course, err
 }
 
 func (r *CoursesDBRepository) FindById(ctx context.Context, id uuid.UUID) (*models.Course, error) {
-	return sqlDB.NewQuery[models.Course](ctx, findCourseByIdQuery, id).One()
+	findByIdCache := cacheDB.NewCache[models.Course](id.String(), 1*time.Hour)
+	return sqlDB.NewCachedQuery[models.Course](ctx, findByIdCache, findCourseByIdQuery, id).One()
 }
 
 func (r *CoursesDBRepository) FindByName(ctx context.Context, name string) (*models.Course, error) {

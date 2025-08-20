@@ -67,6 +67,7 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-redis/redis/v8 v8.11.5 // indirect
+	github.com/gofiber/contrib/otelfiber/v2 v2.2.3 // indirect
 	github.com/gofiber/fiber/v2 v2.52.9 // indirect
 	github.com/gofiber/swagger v0.1.14 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
