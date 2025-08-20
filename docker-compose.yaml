@@ -1,31 +1,45 @@
+x-default-logging: &logging
+  driver: "json-file"
+  options:
+    max-size: "5m"
+    max-file: "2"
+
 services:
   # OpenTelemetry Collector
   otel-collector:
-    image: otel/opentelemetry-collector:latest
+    image: otel/opentelemetry-collector-contrib:latest
     command: ["--config=/etc/config.yaml"]
     volumes:
       - ./dev/otel-collector/config.yaml:/etc/config.yaml
     ports:
-      - "4317:4317"   # OTLP gRPC
-      - "4318:4318"   # OTLP HTTP
-      - "8888:8888"   # Prometheus metrics
-      - "8889:8889"   # Prometheus exporter metrics
+      - "4317:4317"     # OTLP over gRPC receiver
+      - "4318:4318"     # OTLP over HTTP receiver
+      - "9464:9464"     # Prometheus exporter
+      - "8888:8888"     # metrics endpoint
     networks:
       - dev
     depends_on:
-      - jaeger
+      jaeger:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging: *logging
 
   # Jaeger for visualization
   jaeger:
     image: jaegertracing/all-in-one:latest
     ports:
-      - "16686:16686"  # Jaeger UI
-      - "14250:14250"  # Model used by Jaeger for gRPC
-      - "14268:14268"  # HTTP collector
+      - "16686:16686"
+      - "14268:14268"
     environment:
       - COLLECTOR_OTLP_ENABLED=true
+      - LOG_LEVEL=debug
     networks:
       - dev
+    logging: *logging
 
   prometheus:
     image: prom/prometheus:latest
@@ -33,6 +47,7 @@ services:
       - ./dev/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
+    logging: *logging
 
   localstack:
     image: localstack/localstack:3.1
@@ -51,6 +66,7 @@ services:
       - ./dev/localstack/:/etc/localstack/init/ready.d/
     networks:
       - dev
+    logging: *logging
 
   localstack-web:
     image: dantasrafael/localstack-web:0.0.1
@@ -67,7 +83,7 @@ services:
       - dev
 
   redis:
-    image: redis:7.0.5-alpine
+    image: redis:8-alpine
     ports:
       - "6379:6379"
     networks:
@@ -86,38 +102,37 @@ services:
     networks:
       - dev
 
-  school-module:
-    image: school-module
-    ports:
-      - "8080:8080"
-    environment:
-      ENVIRONMENT: development      
-      APP_NAME: Colibri SDK Go Test - School Module
-      APP_TYPE: service
-      NEW_RELIC_LICENSE: aebc9db1f22bac48cefd6ba02c482ec16f3dNRAL
-      PORT: 8080
-      CLOUD: aws
-      CLOUD_PROJECT_ID: XYZ
-      CLOUD_HOST: http://localstack:4566
-      CLOUD_REGION: us-east-1
-      CLOUD_SECRET: no_secret
-      CLOUD_TOKEN: no_token
-      CLOUD_DISABLE_SSL: "true"
-      SQL_DB_HOST: postgres
-      SQL_DB_PORT: 5432
-      SQL_DB_USER: postgres
-      SQL_DB_PASSWORD: postgres
-      SQL_DB_NAME: school_module
-      SQL_DB_SSL_MODE: disable
-      SQL_DB_MIGRATION: "true"
-      CACHE_URI: redis:6379
-      STORAGE_BUCKET: meu-bucket
-      # OpenTelemetry configuration
-      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4317
-      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
-      OTEL_SERVICE_NAME: school-module
-    networks:
-      - dev
+#  school-module:
+#    image: school-module
+#    ports:
+#      - "8080:8080"
+#    environment:
+#      ENVIRONMENT: development
+#      APP_NAME: Colibri SDK Go Test - School Module
+#      APP_TYPE: service
+#      PORT: 8080
+#      CLOUD: aws
+#      CLOUD_PROJECT_ID: XYZ
+#      CLOUD_HOST: http://localstack:4566
+#      CLOUD_REGION: us-east-1
+#      CLOUD_SECRET: no_secret
+#      CLOUD_TOKEN: no_token
+#      CLOUD_DISABLE_SSL: "true"
+#      SQL_DB_HOST: postgres
+#      SQL_DB_PORT: 5432
+#      SQL_DB_USER: postgres
+#      SQL_DB_PASSWORD: postgres
+#      SQL_DB_NAME: school_module
+#      SQL_DB_SSL_MODE: disable
+#      SQL_DB_MIGRATION: "true"
+#      CACHE_URI: redis:6379
+#      STORAGE_BUCKET: meu-bucket
+#      # OpenTelemetry configuration
+#      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4317
+#      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+#      OTEL_SERVICE_NAME: school-module
+#    networks:
+#      - dev
 
   finantial-module:
     image: finantial-module
@@ -127,7 +142,6 @@ services:
       ENVIRONMENT: development      
       APP_NAME: Colibri SDK Go Test - Finantial Module
       APP_TYPE: service
-      NEW_RELIC_LICENSE: aebc9db1f22bac48cefd6ba02c482ec16f3dNRAL
       PORT: 8081
       CLOUD: aws
       CLOUD_PROJECT_ID: XYZ

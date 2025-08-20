@@ -4,7 +4,6 @@ go 1.24
 
 require (
 	github.com/colibriproject-dev/colibri-sdk-go v0.1.6
-	github.com/golang/mock v1.1.1
 	github.com/google/uuid v1.6.0
 )
 
