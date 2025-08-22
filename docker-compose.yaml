@@ -1,6 +1,54 @@
-version: "3"
+x-default-logging: &logging
+  driver: "json-file"
+  options:
+    max-size: "5m"
+    max-file: "2"
 
 services:
+  # OpenTelemetry Collector
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    command: ["--config=/etc/config.yaml"]
+    volumes:
+      - ./dev/otel-collector/config.yaml:/etc/config.yaml
+    ports:
+      - "4317:4317"     # OTLP over gRPC receiver
+      - "4318:4318"     # OTLP over HTTP receiver
+      - "9464:9464"     # Prometheus exporter
+      - "8888:8888"     # metrics endpoint
+    networks:
+      - dev
+    depends_on:
+      jaeger:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging: *logging
+
+  # Jaeger for visualization
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686"
+      - "14268:14268"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - LOG_LEVEL=debug
+    networks:
+      - dev
+    logging: *logging
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./dev/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    logging: *logging
+
   localstack:
     image: localstack/localstack:3.1
     ports:
@@ -9,19 +57,23 @@ services:
     environment:
       - DEBUG=${DEBUG:-0}
       - SERVICES=sns,sqs,s3,lambda
+      - DISABLE_CORS_HEADERS=1
+      - DISABLE_CORS_CHECKS=1
+      - DISABLE_CUSTOM_CORS_S3=1
     volumes:
       - "${TMPDIR:-/tmp}/localstack:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - ./localstack:/etc/localstack/init/ready.d
+      - ./dev/localstack/:/etc/localstack/init/ready.d/
     networks:
       - dev
+    logging: *logging
 
   localstack-web:
     image: dantasrafael/localstack-web:0.0.1
     ports:
       - "3000:80"
     environment:
-      - VITE_LOCALSTACK_ENDPOINT=http://localhost:4566
+      - VITE_LOCALSTACK_ENDPOINT=http://172.17.0.1:4566
       - VITE_AWS_DEFAULT_REGION=us-east-1
       - VITE_AWS_ACCESS_KEY_ID=test
       - VITE_AWS_SECRET_ACCESS_KEY=test
@@ -29,13 +81,15 @@ services:
       - localstack
     networks:
       - dev
+    logging: *logging
 
   redis:
-    image: redis:7.0.5-alpine
+    image: redis:8-alpine
     ports:
       - "6379:6379"
     networks:
       - dev
+    logging: *logging
 
   postgres:
     image: postgres:17-alpine
@@ -49,16 +103,16 @@ services:
       - "pgdata:/var/lib/postgresql/data"
     networks:
       - dev
+    logging: *logging
 
   school-module:
     image: school-module
     ports:
       - "8080:8080"
     environment:
-      ENVIRONMENT: development      
+      ENVIRONMENT: development
       APP_NAME: Colibri SDK Go Test - School Module
       APP_TYPE: service
-      NEW_RELIC_LICENSE: aebc9db1f22bac48cefd6ba02c482ec16f3dNRAL
       PORT: 8080
       CLOUD: aws
       CLOUD_PROJECT_ID: XYZ
@@ -76,18 +130,23 @@ services:
       SQL_DB_MIGRATION: "true"
       CACHE_URI: redis:6379
       STORAGE_BUCKET: meu-bucket
+      FINANCIAL_MODULE_BASE_URL: http://finantial-module:8081
+      # OpenTelemetry configuration
+      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http
+      OTEL_SERVICE_NAME: school-module
     networks:
       - dev
+    logging: *logging
 
   finantial-module:
     image: finantial-module
     ports:
       - "8081:8081"
     environment:
-      ENVIRONMENT: development      
+      ENVIRONMENT: development
       APP_NAME: Colibri SDK Go Test - Finantial Module
       APP_TYPE: service
-      NEW_RELIC_LICENSE: aebc9db1f22bac48cefd6ba02c482ec16f3dNRAL
       PORT: 8081
       CLOUD: aws
       CLOUD_PROJECT_ID: XYZ
@@ -103,8 +162,13 @@ services:
       SQL_DB_NAME: finantial_module
       SQL_DB_SSL_MODE: disable
       SQL_DB_MIGRATION: "true"
+      # OpenTelemetry configuration
+      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http
+      OTEL_SERVICE_NAME: finantial-module
     networks:
       - dev
+    logging: *logging
 
 volumes:
   pgdata:

@@ -29,3 +29,5 @@ coverage.txt
 .idea
 *.iml
 docs/*
+
+application
