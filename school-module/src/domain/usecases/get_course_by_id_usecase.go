@@ -4,11 +4,16 @@ package usecases
 import (
 	"context"
 	"errors"
+	"net/http"
+	"os"
+	"time"
 
 	"github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/domain/exceptions"
 	"github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/domain/models"
 	"github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/infra/repositories"
 	"github.com/colibriproject-dev/colibri-sdk-go/pkg/base/logging"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/base/monitoring"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/web/restclient"
 	"github.com/google/uuid"
 )
 
@@ -21,12 +26,21 @@ type IGetCourseByIdUsecase interface {
 }
 
 type GetCourseByIdUsecase struct {
-	CourseRepository repositories.ICoursesRepository
+	CourseRepository      repositories.ICoursesRepository
+	financialModuleClient *restclient.RestClient
 }
 
 func NewGetCourseByIdUsecase() *GetCourseByIdUsecase {
+	client := restclient.NewRestClient(&restclient.RestClientConfig{
+		Name:                "financial-module-client",
+		BaseURL:             os.Getenv("FINANCIAL_MODULE_BASE_URL"),
+		Timeout:             0,
+		Retries:             0,
+		RetrySleepInSeconds: 0,
+	})
 	return &GetCourseByIdUsecase{
-		CourseRepository: repositories.NewCoursesDBRepository(),
+		CourseRepository:      repositories.NewCoursesDBRepository(),
+		financialModuleClient: client,
 	}
 }
 
@@ -41,9 +55,35 @@ func (u *GetCourseByIdUsecase) Execute(ctx context.Context, id uuid.UUID) (*mode
 		return nil, errors.New(exceptions.ErrOnFindCourseById)
 	}
 
+	u.methodA(ctx)
+
+	response := restclient.Request[any, any]{
+		Ctx:        ctx,
+		Client:     u.financialModuleClient,
+		HttpMethod: http.MethodGet,
+		Path:       "/public/accounts",
+	}.Call()
+
+	if response.StatusCode() != http.StatusOK {
+		return nil, response.Error()
+	}
+
 	if result == nil {
 		return nil, errors.New(exceptions.ErrCourseNotFound)
 	}
 
 	return result, nil
+}
+
+func (u *GetCourseByIdUsecase) methodA(ctx context.Context) {
+	seg := monitoring.StartTransactionSegment(ctx, "sub segment", map[string]string{"name": "seg attr1", "value": "seg attr2"})
+	defer monitoring.EndTransaction(seg)
+	time.Sleep(50 * time.Millisecond)
+	u.methodB(ctx)
+}
+
+func (u *GetCourseByIdUsecase) methodB(ctx context.Context) {
+	seg2 := monitoring.StartTransactionSegment(ctx, "seg2", map[string]string{"name": "seg2 attr1", "value": "seg2 attr2"})
+	defer monitoring.EndTransactionSegment(seg2)
+	time.Sleep(25 * time.Millisecond)
 }
