@@ -18,7 +18,7 @@ mock:
 	find . -type f -name "*_mock.go" -exec rm -f {} \;
 	go generate -v ./...
 
-build:
+build: doc
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -buildvcs=false -ldflags="-w -s" -o application
 
 update-module:
