@@ -66,6 +66,11 @@ services:
       - ./dev/localstack/:/etc/localstack/init/ready.d/
     networks:
       - dev
+    healthcheck:
+      test: ["CMD", "bash", "-c", "awslocal s3 ls && awslocal sqs list-queues"]
+      interval: 5s
+      timeout: 10s
+      start_period: 10s
     logging: *logging
 
   localstack-web:
@@ -103,6 +108,12 @@ services:
       - "pgdata:/var/lib/postgresql/data"
     networks:
       - dev
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     logging: *logging
 
   school-module:
@@ -137,6 +148,11 @@ services:
       OTEL_SERVICE_NAME: school-module
     networks:
       - dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
     logging: *logging
 
   finantial-module:
@@ -168,6 +184,11 @@ services:
       OTEL_SERVICE_NAME: finantial-module
     networks:
       - dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
     logging: *logging
 
 volumes:
