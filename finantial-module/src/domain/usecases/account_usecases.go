@@ -8,6 +8,7 @@ import (
 	"github.com/colibriproject-dev/colibri-sdk-go-examples/finantial-module/src/domain/enums"
 	"github.com/colibriproject-dev/colibri-sdk-go-examples/finantial-module/src/domain/models"
 	"github.com/colibriproject-dev/colibri-sdk-go-examples/finantial-module/src/infra/repositories"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/base/monitoring"
 	"github.com/google/uuid"
 )
 
@@ -56,6 +57,8 @@ func (u *AccountUsecase) DeleteByStudentAndCourse(ctx context.Context, studentId
 }
 
 func (u *AccountUsecase) DeleteByCourse(ctx context.Context, courseId uuid.UUID) error {
+	seg := monitoring.StartTransactionSegment(ctx, "usecase.DeleteByCourse", nil)
+	defer monitoring.EndTransactionSegment(seg)
 	return u.Repository.DeleteByCourse(ctx, courseId)
 }
 

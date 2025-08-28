@@ -50,16 +50,21 @@ services:
     logging: *logging
 
   localstack:
-    image: localstack/localstack:3.1
+    image: localstack/localstack:4.7
     ports:
-      - "127.0.0.1:4510-4559:4510-4559"  # external service port range
-      - "127.0.0.1:4566:4566"            # LocalStack Edge Proxy
+      - "4510-4559:4510-4559"  # external service port range
+      - "4566:4566"            # LocalStack Edge Proxy
     environment:
       - DEBUG=${DEBUG:-0}
-      - SERVICES=sns,sqs,s3,lambda
-      - DISABLE_CORS_HEADERS=1
+      - SERVICES=sns,sqs,s3
       - DISABLE_CORS_CHECKS=1
-      - DISABLE_CUSTOM_CORS_S3=1
+      - DISABLE_CORS_HANDLERS=1
+      - SKIP_CORS_PREFLIGHT=1
+      - CORS_ALLOW_ORIGIN=*
+      - CORS_EXPOSE_HEADERS=*
+      - EXTRA_CORS_ALLOWED_ORIGINS=*
+      - EXTRA_CORS_ALLOWED_HEADERS=*
+      - EXTRA_CORS_ALLOWED_METHODS=GET,POST,PUT,DELETE,HEAD,OPTIONS
     volumes:
       - "${TMPDIR:-/tmp}/localstack:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
@@ -78,7 +83,7 @@ services:
     ports:
       - "3000:80"
     environment:
-      - VITE_LOCALSTACK_ENDPOINT=http://172.17.0.1:4566
+      - VITE_LOCALSTACK_ENDPOINT=http://localstack:4566
       - VITE_AWS_DEFAULT_REGION=us-east-1
       - VITE_AWS_ACCESS_KEY_ID=test
       - VITE_AWS_SECRET_ACCESS_KEY=test
@@ -116,80 +121,80 @@ services:
       start_period: 30s
     logging: *logging
 
-  school-module:
-    image: school-module
-    ports:
-      - "8080:8080"
-    environment:
-      ENVIRONMENT: development
-      APP_NAME: Colibri SDK Go Test - School Module
-      APP_TYPE: service
-      PORT: 8080
-      CLOUD: aws
-      CLOUD_PROJECT_ID: XYZ
-      CLOUD_HOST: http://localstack:4566
-      CLOUD_REGION: us-east-1
-      CLOUD_SECRET: no_secret
-      CLOUD_TOKEN: no_token
-      CLOUD_DISABLE_SSL: "true"
-      SQL_DB_HOST: postgres
-      SQL_DB_PORT: 5432
-      SQL_DB_USER: postgres
-      SQL_DB_PASSWORD: postgres
-      SQL_DB_NAME: school_module
-      SQL_DB_SSL_MODE: disable
-      SQL_DB_MIGRATION: "true"
-      CACHE_URI: redis:6379
-      STORAGE_BUCKET: meu-bucket
-      FINANCIAL_MODULE_BASE_URL: http://finantial-module:8081
-      # OpenTelemetry configuration
-      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4318
-      OTEL_EXPORTER_OTLP_PROTOCOL: http
-      OTEL_SERVICE_NAME: school-module
-    networks:
-      - dev
-    depends_on:
-      postgres:
-        condition: service_healthy
-      localstack:
-        condition: service_healthy
-    logging: *logging
-
-  finantial-module:
-    image: finantial-module
-    ports:
-      - "8081:8081"
-    environment:
-      ENVIRONMENT: development
-      APP_NAME: Colibri SDK Go Test - Finantial Module
-      APP_TYPE: service
-      PORT: 8081
-      CLOUD: aws
-      CLOUD_PROJECT_ID: XYZ
-      CLOUD_HOST: http://localstack:4566
-      CLOUD_REGION: us-east-1
-      CLOUD_SECRET: no_secret
-      CLOUD_TOKEN: no_token
-      CLOUD_DISABLE_SSL: "true"
-      SQL_DB_HOST: postgres
-      SQL_DB_PORT: 5432
-      SQL_DB_USER: postgres
-      SQL_DB_PASSWORD: postgres
-      SQL_DB_NAME: finantial_module
-      SQL_DB_SSL_MODE: disable
-      SQL_DB_MIGRATION: "true"
-      # OpenTelemetry configuration
-      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4318
-      OTEL_EXPORTER_OTLP_PROTOCOL: http
-      OTEL_SERVICE_NAME: finantial-module
-    networks:
-      - dev
-    depends_on:
-      postgres:
-        condition: service_healthy
-      localstack:
-        condition: service_healthy
-    logging: *logging
+#  school-module:
+#    image: school-module
+#    ports:
+#      - "8080:8080"
+#    environment:
+#      ENVIRONMENT: development
+#      APP_NAME: Colibri SDK Go Test - School Module
+#      APP_TYPE: service
+#      PORT: 8080
+#      CLOUD: aws
+#      CLOUD_PROJECT_ID: XYZ
+#      CLOUD_HOST: http://localstack:4566
+#      CLOUD_REGION: us-east-1
+#      CLOUD_SECRET: no_secret
+#      CLOUD_TOKEN: no_token
+#      CLOUD_DISABLE_SSL: "true"
+#      SQL_DB_HOST: postgres
+#      SQL_DB_PORT: 5432
+#      SQL_DB_USER: postgres
+#      SQL_DB_PASSWORD: postgres
+#      SQL_DB_NAME: school_module
+#      SQL_DB_SSL_MODE: disable
+#      SQL_DB_MIGRATION: "true"
+#      CACHE_URI: redis:6379
+#      STORAGE_BUCKET: meu-bucket
+#      FINANCIAL_MODULE_BASE_URL: http://finantial-module:8081
+#      # OpenTelemetry configuration
+#      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4318
+#      OTEL_EXPORTER_OTLP_PROTOCOL: http
+#      OTEL_SERVICE_NAME: school-module
+#    networks:
+#      - dev
+#    depends_on:
+#      postgres:
+#        condition: service_healthy
+#      localstack:
+#        condition: service_healthy
+#    logging: *logging
+#
+#  finantial-module:
+#    image: finantial-module
+#    ports:
+#      - "8081:8081"
+#    environment:
+#      ENVIRONMENT: development
+#      APP_NAME: Colibri SDK Go Test - Finantial Module
+#      APP_TYPE: service
+#      PORT: 8081
+#      CLOUD: aws
+#      CLOUD_PROJECT_ID: XYZ
+#      CLOUD_HOST: http://localstack:4566
+#      CLOUD_REGION: us-east-1
+#      CLOUD_SECRET: no_secret
+#      CLOUD_TOKEN: no_token
+#      CLOUD_DISABLE_SSL: "true"
+#      SQL_DB_HOST: postgres
+#      SQL_DB_PORT: 5432
+#      SQL_DB_USER: postgres
+#      SQL_DB_PASSWORD: postgres
+#      SQL_DB_NAME: finantial_module
+#      SQL_DB_SSL_MODE: disable
+#      SQL_DB_MIGRATION: "true"
+#      # OpenTelemetry configuration
+#      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4318
+#      OTEL_EXPORTER_OTLP_PROTOCOL: http
+#      OTEL_SERVICE_NAME: finantial-module
+#    networks:
+#      - dev
+#    depends_on:
+#      postgres:
+#        condition: service_healthy
+#      localstack:
+#        condition: service_healthy
+#    logging: *logging
 
 volumes:
   pgdata:

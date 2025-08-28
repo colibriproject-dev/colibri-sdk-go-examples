@@ -17,7 +17,7 @@ type EnrollmentCreatedProducer struct {
 }
 
 func NewEnrollmentCreatedProducer() *EnrollmentCreatedProducer {
-	return &EnrollmentCreatedProducer{messaging.NewProducer("SCHOOL_ENROLLMENT_CREATED")}
+	return &EnrollmentCreatedProducer{messaging.NewProducer("SCHOOL_ENROLLMENT")}
 }
 
 func (p *EnrollmentCreatedProducer) Send(ctx context.Context, model *models.EnrollmentCreated) error {

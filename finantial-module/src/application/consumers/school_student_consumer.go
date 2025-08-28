@@ -5,6 +5,7 @@ import (
 
 	"github.com/colibriproject-dev/colibri-sdk-go-examples/finantial-module/src/domain/models"
 	"github.com/colibriproject-dev/colibri-sdk-go-examples/finantial-module/src/domain/usecases"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/base/logging"
 	"github.com/colibriproject-dev/colibri-sdk-go/pkg/messaging"
 )
 
@@ -25,6 +26,10 @@ func (p *SchoolStudentConsumer) Consume(ctx context.Context, providerMessage *me
 	if err := providerMessage.DecodeMessage(&model); err != nil {
 		return err
 	}
+
+	logging.Info(ctx).
+		AddParam("studentID", model.ID).
+		Msg("Student received")
 
 	if providerMessage.Action != "DELETE_STUDENT" {
 		if err := p.Usecase.DeleteByStudent(ctx, model.ID); err != nil {

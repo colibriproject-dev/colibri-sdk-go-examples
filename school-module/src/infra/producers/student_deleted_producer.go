@@ -17,7 +17,7 @@ type StudentDeletedProducer struct {
 }
 
 func NewStudentDeletedProducer() *StudentDeletedProducer {
-	return &StudentDeletedProducer{messaging.NewProducer("SCHOOL_STUDENT_DELETED")}
+	return &StudentDeletedProducer{messaging.NewProducer("SCHOOL_STUDENT")}
 }
 
 func (p *StudentDeletedProducer) Send(ctx context.Context, model *models.StudentDelete) error {

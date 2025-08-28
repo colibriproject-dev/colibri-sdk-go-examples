@@ -3,7 +3,7 @@ module github.com/colibriproject-dev/colibri-sdk-go-examples/finantial-module
 go 1.24
 
 require (
-	github.com/colibriproject-dev/colibri-sdk-go v0.1.7-0.20250822230330-a0c1e54b5a71
+	github.com/colibriproject-dev/colibri-sdk-go v0.1.8-0.20250825192439-01197714f690
 	github.com/google/uuid v1.6.0
 	go.uber.org/mock v0.6.0
 )
@@ -70,8 +70,6 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
-	github.com/newrelic/go-agent/v3 v3.38.0 // indirect
-	github.com/newrelic/go-agent/v3/integrations/nrpq v1.1.1 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/prometheus/client_golang v1.23.0 // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect

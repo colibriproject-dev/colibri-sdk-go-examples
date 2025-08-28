@@ -3,7 +3,7 @@ module github.com/colibriproject-dev/colibri-sdk-go-examples/school-module
 go 1.24
 
 require (
-	github.com/colibriproject-dev/colibri-sdk-go v0.1.7-0.20250822230330-a0c1e54b5a71
+	github.com/colibriproject-dev/colibri-sdk-go v0.1.8-0.20250825192439-01197714f690
 	github.com/go-playground/validator/v10 v10.15.5
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.6.0
@@ -103,8 +103,6 @@ require (
 	github.com/moby/term v0.5.0 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
-	github.com/newrelic/go-agent/v3 v3.38.0 // indirect
-	github.com/newrelic/go-agent/v3/integrations/nrpq v1.1.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
