@@ -69,6 +69,10 @@ func (u *CreateCourseUsecase) insertCourse(ctx context.Context, model *models.Co
 		return nil, errors.New(exceptions.ErrOnInsertCourse)
 	}
 
+	logging.Info(ctx).
+		AddParam("model", result).
+		Msg("course created")
+
 	if err := u.createdProducer.Send(ctx, result); err != nil {
 		logging.Error(ctx).
 			Err(err).

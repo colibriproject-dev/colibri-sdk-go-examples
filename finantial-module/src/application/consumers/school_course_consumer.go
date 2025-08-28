@@ -29,7 +29,6 @@ func (p *SchoolCourseConsumer) Consume(ctx context.Context, providerMessage *mes
 
 	logging.Info(ctx).
 		AddParam("courseID", model.ID).
-		AddParam("correlationID", providerMessage.CorrelationID).
 		Msg("Course received")
 
 	if providerMessage.Action == "DELETE_COURSE" {
