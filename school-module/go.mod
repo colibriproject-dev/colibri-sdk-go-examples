@@ -3,7 +3,7 @@ module github.com/colibriproject-dev/colibri-sdk-go-examples/school-module
 go 1.24
 
 require (
-	github.com/colibriproject-dev/colibri-sdk-go v0.1.7-0.20250822230330-a0c1e54b5a71
+	github.com/colibriproject-dev/colibri-sdk-go v0.1.8-0.20250828140207-bfae183f1d5b
 	github.com/go-playground/validator/v10 v10.15.5
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.6.0
@@ -166,5 +166,3 @@ require (
 	google.golang.org/protobuf v1.36.7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-replace github.com/colibriproject-dev/colibri-sdk-go => ../../colibri-sdk-go
