@@ -3,7 +3,7 @@ module github.com/colibriproject-dev/colibri-sdk-go-examples/finantial-module
 go 1.24
 
 require (
-	github.com/colibriproject-dev/colibri-sdk-go v0.1.8-0.20250828140207-bfae183f1d5b
+	github.com/colibriproject-dev/colibri-sdk-go v0.1.8
 	github.com/google/uuid v1.6.0
 	go.uber.org/mock v0.6.0
 )

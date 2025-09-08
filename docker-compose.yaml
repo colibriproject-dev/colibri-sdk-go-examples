@@ -121,80 +121,80 @@ services:
       start_period: 30s
     logging: *logging
 
-#  school-module:
-#    image: school-module
-#    ports:
-#      - "8080:8080"
-#    environment:
-#      ENVIRONMENT: development
-#      APP_NAME: Colibri SDK Go Test - School Module
-#      APP_TYPE: service
-#      PORT: 8080
-#      CLOUD: aws
-#      CLOUD_PROJECT_ID: XYZ
-#      CLOUD_HOST: http://localstack:4566
-#      CLOUD_REGION: us-east-1
-#      CLOUD_SECRET: no_secret
-#      CLOUD_TOKEN: no_token
-#      CLOUD_DISABLE_SSL: "true"
-#      SQL_DB_HOST: postgres
-#      SQL_DB_PORT: 5432
-#      SQL_DB_USER: postgres
-#      SQL_DB_PASSWORD: postgres
-#      SQL_DB_NAME: school_module
-#      SQL_DB_SSL_MODE: disable
-#      SQL_DB_MIGRATION: "true"
-#      CACHE_URI: redis:6379
-#      STORAGE_BUCKET: meu-bucket
-#      FINANCIAL_MODULE_BASE_URL: http://finantial-module:8081
-#      # OpenTelemetry configuration
-#      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4318
-#      OTEL_EXPORTER_OTLP_PROTOCOL: http
-#      OTEL_SERVICE_NAME: school-module
-#    networks:
-#      - dev
-#    depends_on:
-#      postgres:
-#        condition: service_healthy
-#      localstack:
-#        condition: service_healthy
-#    logging: *logging
-#
-#  finantial-module:
-#    image: finantial-module
-#    ports:
-#      - "8081:8081"
-#    environment:
-#      ENVIRONMENT: development
-#      APP_NAME: Colibri SDK Go Test - Finantial Module
-#      APP_TYPE: service
-#      PORT: 8081
-#      CLOUD: aws
-#      CLOUD_PROJECT_ID: XYZ
-#      CLOUD_HOST: http://localstack:4566
-#      CLOUD_REGION: us-east-1
-#      CLOUD_SECRET: no_secret
-#      CLOUD_TOKEN: no_token
-#      CLOUD_DISABLE_SSL: "true"
-#      SQL_DB_HOST: postgres
-#      SQL_DB_PORT: 5432
-#      SQL_DB_USER: postgres
-#      SQL_DB_PASSWORD: postgres
-#      SQL_DB_NAME: finantial_module
-#      SQL_DB_SSL_MODE: disable
-#      SQL_DB_MIGRATION: "true"
-#      # OpenTelemetry configuration
-#      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4318
-#      OTEL_EXPORTER_OTLP_PROTOCOL: http
-#      OTEL_SERVICE_NAME: finantial-module
-#    networks:
-#      - dev
-#    depends_on:
-#      postgres:
-#        condition: service_healthy
-#      localstack:
-#        condition: service_healthy
-#    logging: *logging
+  school-module:
+    image: school-module
+    ports:
+      - "8080:8080"
+    environment:
+      ENVIRONMENT: development
+      APP_NAME: Colibri SDK Go Test - School Module
+      APP_TYPE: service
+      PORT: 8080
+      CLOUD: aws
+      CLOUD_PROJECT_ID: XYZ
+      CLOUD_HOST: http://localstack:4566
+      CLOUD_REGION: us-east-1
+      CLOUD_SECRET: no_secret
+      CLOUD_TOKEN: no_token
+      CLOUD_DISABLE_SSL: "true"
+      SQL_DB_HOST: postgres
+      SQL_DB_PORT: 5432
+      SQL_DB_USER: postgres
+      SQL_DB_PASSWORD: postgres
+      SQL_DB_NAME: school_module
+      SQL_DB_SSL_MODE: disable
+      SQL_DB_MIGRATION: "true"
+      CACHE_URI: redis:6379
+      STORAGE_BUCKET: meu-bucket
+      FINANCIAL_MODULE_BASE_URL: http://finantial-module:8081
+      # OpenTelemetry configuration
+      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http
+      OTEL_SERVICE_NAME: school-module
+    networks:
+      - dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+    logging: *logging
+
+  finantial-module:
+    image: finantial-module
+    ports:
+      - "8081:8081"
+    environment:
+      ENVIRONMENT: development
+      APP_NAME: Colibri SDK Go Test - Finantial Module
+      APP_TYPE: service
+      PORT: 8081
+      CLOUD: aws
+      CLOUD_PROJECT_ID: XYZ
+      CLOUD_HOST: http://localstack:4566
+      CLOUD_REGION: us-east-1
+      CLOUD_SECRET: no_secret
+      CLOUD_TOKEN: no_token
+      CLOUD_DISABLE_SSL: "true"
+      SQL_DB_HOST: postgres
+      SQL_DB_PORT: 5432
+      SQL_DB_USER: postgres
+      SQL_DB_PASSWORD: postgres
+      SQL_DB_NAME: finantial_module
+      SQL_DB_SSL_MODE: disable
+      SQL_DB_MIGRATION: "true"
+      # OpenTelemetry configuration
+      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http
+      OTEL_SERVICE_NAME: finantial-module
+    networks:
+      - dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+    logging: *logging
 
 volumes:
   pgdata:
