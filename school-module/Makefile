@@ -39,7 +39,7 @@ install-go-linux:
 	. ~/.profile
 
 install-dependencies:
-	go install go install go.uber.org/mock/mockgen@latest
+	go install go.uber.org/mock/mockgen@latest
 	go install github.com/ory/go-acc@latest
 	go install github.com/swaggo/swag/cmd/swag@latest
 
