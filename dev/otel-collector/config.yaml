@@ -29,9 +29,9 @@ exporters:
     tls:
       insecure: true
   otlphttp:
-    endpoint: jaeger:4318
-    tls:
-      insecure: true
+    endpoint: https://otlp.nr-data.net:4318
+    headers:
+      api-key: <new-relic-key>
   prometheus:
     endpoint: "0.0.0.0:9090"
 
@@ -40,7 +40,7 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlp, debug, spanmetrics]
+      exporters: [otlp, debug, spanmetrics, otlphttp]
     metrics:
       receivers: [otlp, spanmetrics]
       processors: [filter, batch]

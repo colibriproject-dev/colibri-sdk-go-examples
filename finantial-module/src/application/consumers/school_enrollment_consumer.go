@@ -5,6 +5,7 @@ import (
 
 	"github.com/colibriproject-dev/colibri-sdk-go-examples/finantial-module/src/domain/models"
 	"github.com/colibriproject-dev/colibri-sdk-go-examples/finantial-module/src/domain/usecases"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/base/logging"
 	"github.com/colibriproject-dev/colibri-sdk-go/pkg/messaging"
 )
 
@@ -25,6 +26,11 @@ func (p *SchoolEnrollmentConsumer) Consume(ctx context.Context, providerMessage 
 	if err := providerMessage.DecodeMessage(&model); err != nil {
 		return err
 	}
+
+	logging.Info(ctx).
+		AddParam("studentID", model.Student.ID).
+		AddParam("courseID", model.Course.ID).
+		Msg("Enrollment received")
 
 	if providerMessage.Action == "CREATE_ENROLLMENT" {
 		if err := p.Usecase.Create(ctx, model.ToAccount()); err != nil {

@@ -57,6 +57,10 @@ func (u *GetCourseByIdUsecase) Execute(ctx context.Context, id uuid.UUID) (*mode
 
 	u.methodA(ctx)
 
+	logging.Info(ctx).
+		AddParam("model", result).
+		Msg("course found")
+
 	response := restclient.Request[any, any]{
 		Ctx:        ctx,
 		Client:     u.financialModuleClient,
@@ -72,6 +76,9 @@ func (u *GetCourseByIdUsecase) Execute(ctx context.Context, id uuid.UUID) (*mode
 		return nil, errors.New(exceptions.ErrCourseNotFound)
 	}
 
+	logging.Info(ctx).
+		AddParam("result", result).
+		Msg("course found")
 	return result, nil
 }
 

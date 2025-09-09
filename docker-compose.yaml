@@ -50,16 +50,21 @@ services:
     logging: *logging
 
   localstack:
-    image: localstack/localstack:3.1
+    image: localstack/localstack:4.7
     ports:
-      - "127.0.0.1:4510-4559:4510-4559"  # external service port range
-      - "127.0.0.1:4566:4566"            # LocalStack Edge Proxy
+      - "4510-4559:4510-4559"  # external service port range
+      - "4566:4566"            # LocalStack Edge Proxy
     environment:
       - DEBUG=${DEBUG:-0}
-      - SERVICES=sns,sqs,s3,lambda
-      - DISABLE_CORS_HEADERS=1
+      - SERVICES=sns,sqs,s3
       - DISABLE_CORS_CHECKS=1
-      - DISABLE_CUSTOM_CORS_S3=1
+      - DISABLE_CORS_HANDLERS=1
+      - SKIP_CORS_PREFLIGHT=1
+      - CORS_ALLOW_ORIGIN=*
+      - CORS_EXPOSE_HEADERS=*
+      - EXTRA_CORS_ALLOWED_ORIGINS=*
+      - EXTRA_CORS_ALLOWED_HEADERS=*
+      - EXTRA_CORS_ALLOWED_METHODS=GET,POST,PUT,DELETE,HEAD,OPTIONS
     volumes:
       - "${TMPDIR:-/tmp}/localstack:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
@@ -78,7 +83,7 @@ services:
     ports:
       - "3000:80"
     environment:
-      - VITE_LOCALSTACK_ENDPOINT=http://172.17.0.1:4566
+      - VITE_LOCALSTACK_ENDPOINT=http://localstack:4566
       - VITE_AWS_DEFAULT_REGION=us-east-1
       - VITE_AWS_ACCESS_KEY_ID=test
       - VITE_AWS_SECRET_ACCESS_KEY=test

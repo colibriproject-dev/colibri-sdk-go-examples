@@ -5,6 +5,7 @@ import (
 	"context"
 
 	"github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/domain/models"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/base/logging"
 	"github.com/colibriproject-dev/colibri-sdk-go/pkg/messaging"
 )
 
@@ -17,9 +18,10 @@ type EnrollmentCreatedProducer struct {
 }
 
 func NewEnrollmentCreatedProducer() *EnrollmentCreatedProducer {
-	return &EnrollmentCreatedProducer{messaging.NewProducer("SCHOOL_ENROLLMENT_CREATED")}
+	return &EnrollmentCreatedProducer{messaging.NewProducer("SCHOOL_ENROLLMENT")}
 }
 
 func (p *EnrollmentCreatedProducer) Send(ctx context.Context, model *models.EnrollmentCreated) error {
+	logging.Info(ctx).Msg("Sending enrollment created message")
 	return p.producer.Publish(ctx, "CREATE_ENROLLMENT", model)
 }

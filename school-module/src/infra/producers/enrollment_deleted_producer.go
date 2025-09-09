@@ -17,7 +17,7 @@ type EnrollmentDeletedProducer struct {
 }
 
 func NewEnrollmentDeletedProducer() *EnrollmentDeletedProducer {
-	return &EnrollmentDeletedProducer{messaging.NewProducer("SCHOOL_ENROLLMENT_DELETED")}
+	return &EnrollmentDeletedProducer{messaging.NewProducer("SCHOOL_ENROLLMENT")}
 }
 
 func (p *EnrollmentDeletedProducer) Send(ctx context.Context, model *models.EnrollmentDelete) error {

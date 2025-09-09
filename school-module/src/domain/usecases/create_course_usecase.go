@@ -7,6 +7,7 @@ import (
 
 	"github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/domain/exceptions"
 	"github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/domain/models"
+	"github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/infra/producers"
 	"github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/infra/repositories"
 	"github.com/colibriproject-dev/colibri-sdk-go/pkg/base/logging"
 )
@@ -21,11 +22,13 @@ type ICreateCourseUsecase interface {
 
 type CreateCourseUsecase struct {
 	CourseRepository repositories.ICoursesRepository
+	createdProducer  producers.ICourseCreatedProducer
 }
 
 func NewCreateCourseUsecase() *CreateCourseUsecase {
 	return &CreateCourseUsecase{
 		CourseRepository: repositories.NewCoursesDBRepository(),
+		createdProducer:  producers.NewCourseCreatedProducer(),
 	}
 }
 
@@ -64,6 +67,17 @@ func (u *CreateCourseUsecase) insertCourse(ctx context.Context, model *models.Co
 			AddParam("model", model).
 			Msg(errAnErrorOccurredInCreateCourseUsecaseMsg)
 		return nil, errors.New(exceptions.ErrOnInsertCourse)
+	}
+
+	logging.Info(ctx).
+		AddParam("model", result).
+		Msg("course created")
+
+	if err := u.createdProducer.Send(ctx, result); err != nil {
+		logging.Error(ctx).
+			Err(err).
+			AddParam("step", "CourseCreatedProducer.Send").
+			AddParam("model", result)
 	}
 
 	return result, nil
