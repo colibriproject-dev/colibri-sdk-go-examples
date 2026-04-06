@@ -11,7 +11,7 @@ import (
 )
 
 func TestStudentDeletedProducer_Send(t *testing.T) {
-	const testQueue string = "SCHOOL_STUDENT_DELETED_TOPIC_TEST"
+	const testQueue string = "SCHOOL_STUDENT_FINANCIAL"
 
 	t.Run("should send message", func(t *testing.T) {
 		expected := &models.StudentDelete{ID: uuid.New()}

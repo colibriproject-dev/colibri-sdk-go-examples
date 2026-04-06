@@ -13,9 +13,9 @@ import (
 	usecasesmock "github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/domain/usecases/mock"
 	"github.com/colibriproject-dev/colibri-sdk-go/pkg/base/types"
 	"github.com/colibriproject-dev/colibri-sdk-go/pkg/web/restserver"
-	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/mock/gomock"
 )
 
 func TestEnrollmentsV1Controller(t *testing.T) {

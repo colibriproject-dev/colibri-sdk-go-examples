@@ -7,9 +7,8 @@ run:
 	go run main.go
 
 test: mock
-	go-acc --covermode=set -o coverage.txt ./...
-	grep -v -E "main.go|_mock.go" coverage.txt > filtered_coverage.txt
-	mv filtered_coverage.txt coverage.txt
+	mkdir -p coverage
+	go test -cover ./... -args -test.gocoverdir="${PWD}/coverage/"
 
 cover:
 	go tool cover -html coverage.txt

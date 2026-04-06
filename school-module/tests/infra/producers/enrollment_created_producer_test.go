@@ -13,7 +13,7 @@ import (
 )
 
 func TestEnrollmentCreatedProducer_Send(t *testing.T) {
-	const testQueue string = "SCHOOL_ENROLLMENT_CREATED_TOPIC_TEST"
+	const testQueue string = "SCHOOL_ENROLLMENT_FINANCIAL"
 
 	t.Run("should send message", func(t *testing.T) {
 		expected := &models.EnrollmentCreated{

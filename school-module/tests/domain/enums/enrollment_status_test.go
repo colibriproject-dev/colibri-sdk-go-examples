@@ -4,11 +4,13 @@ import (
 	"testing"
 
 	"github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/domain/enums"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/base/logging"
 	"github.com/go-playground/validator/v10"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestEnrollmentStatusValidator(t *testing.T) {
+	logging.Initialize()
 	validate := validator.New()
 	validate.RegisterValidation("oneOfEnrollmentStatus", enums.EnrollmentStatusValidator)
 

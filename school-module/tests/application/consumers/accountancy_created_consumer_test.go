@@ -11,9 +11,9 @@ import (
 	"github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/domain/models"
 	usecasesmock "github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/domain/usecases/mock"
 	"github.com/colibriproject-dev/colibri-sdk-go/pkg/messaging"
-	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/mock/gomock"
 )
 
 func TestNewFinantialInstallmentConsumer(t *testing.T) {

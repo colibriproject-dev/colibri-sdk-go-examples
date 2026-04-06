@@ -10,9 +10,9 @@ import (
 	"github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/domain/usecases"
 	repositoriesmock "github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/infra/repositories/mock"
 	storagesmock "github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/infra/storages/mock"
-	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/mock/gomock"
 )
 
 func TestUploadStudentDocumentUsecase(t *testing.T) {

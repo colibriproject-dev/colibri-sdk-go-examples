@@ -23,6 +23,7 @@ go.work
 # Env file
 .env
 
+coverage/
 **/mock/*_mock.go
 .scannerwork/
 coverage.txt

@@ -10,9 +10,9 @@ import (
 	"github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/domain/usecases"
 	producersmock "github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/infra/producers/mock"
 	repositoriesmock "github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/infra/repositories/mock"
-	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/mock/gomock"
 )
 
 func TestCreateEnrollmentUsecase(t *testing.T) {
