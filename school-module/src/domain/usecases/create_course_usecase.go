@@ -10,6 +10,8 @@ import (
 	"github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/infra/producers"
 	"github.com/colibriproject-dev/colibri-sdk-go-examples/school-module/src/infra/repositories"
 	"github.com/colibriproject-dev/colibri-sdk-go/pkg/base/logging"
+	"github.com/colibriproject-dev/colibri-sdk-go/pkg/base/monitoring"
+	colibrimonitoringbase "github.com/colibriproject-dev/colibri-sdk-go/pkg/base/monitoring/colibri-monitoring-base"
 )
 
 const (
@@ -23,21 +25,35 @@ type ICreateCourseUsecase interface {
 type CreateCourseUsecase struct {
 	CourseRepository repositories.ICoursesRepository
 	createdProducer  producers.ICourseCreatedProducer
+	counterSuccess   colibrimonitoringbase.Counter
+	counterErr       colibrimonitoringbase.Counter
 }
 
 func NewCreateCourseUsecase() *CreateCourseUsecase {
+	c := monitoring.Counter("school.course.creation.success", "Contador de criação de cursos com sucesso", "1")
+	cErr := monitoring.Counter("school.course.creation.error", "Contador de criação de cursos com erro", "1")
 	return &CreateCourseUsecase{
 		CourseRepository: repositories.NewCoursesDBRepository(),
 		createdProducer:  producers.NewCourseCreatedProducer(),
+		counterSuccess:   c,
+		counterErr:       cErr,
 	}
 }
 
 func (u *CreateCourseUsecase) Execute(ctx context.Context, model *models.CourseCreate) (*models.Course, error) {
 	if err := u.existsCourseByName(ctx, model); err != nil {
+		u.counterErr.Add(ctx, 1, nil)
 		return nil, err
 	}
 
-	return u.insertCourse(ctx, model)
+	course, err := u.insertCourse(ctx, model)
+	if err != nil {
+		u.counterErr.Add(ctx, 1, nil)
+		return nil, err
+	}
+
+	u.counterSuccess.Add(ctx, 1, nil)
+	return course, nil
 }
 
 func (u *CreateCourseUsecase) existsCourseByName(ctx context.Context, model *models.CourseCreate) error {
