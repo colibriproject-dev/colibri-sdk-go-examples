@@ -26,4 +26,4 @@ awslocal sns subscribe --topic-arn arn:aws:sns:us-east-1:000000000000:FINANCIAL_
 
 awslocal s3api create-bucket --bucket meu-bucket --acl public-read
 
-echo "localstack topics and queues started"
+echo "localstack emulator started"

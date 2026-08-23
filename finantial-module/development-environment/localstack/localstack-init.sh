@@ -20,4 +20,4 @@ awslocal sns subscribe --topic-arn arn:aws:sns:us-east-1:000000000000:SCHOOL_STU
 
 awslocal sns create-topic --name FINANCIAL_INSTALLMENT
 
-echo "localstack topics and queues started"
+echo "localstack emulator started"
