@@ -1,0 +1,41 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Copie para terraform.tfvars e ajuste. Nenhum banco é criado por este
+# Terraform: as variáveis abaixo apenas apontam para um PostgreSQL e um Redis
+# que já existem e aceitam conexão pela internet.
+# ─────────────────────────────────────────────────────────────────────────────
+
+project_id  = "meu-projeto-gcp"
+region      = "southamerica-east1"
+name_prefix = "colibri-examples"
+environment = "sandbox"
+
+# ── Banco remoto ─────────────────────────────────────────────────────────────
+db_host           = "meu-postgres.exemplo.com"
+db_port           = "5432"
+db_user           = "colibri"
+db_password       = "troque-esta-senha"
+db_ssl_mode       = "require"
+db_name_school    = "school_module"
+db_name_finantial = "finantial_module"
+db_run_migrations = true
+
+# ── Cache remoto (school-module) ─────────────────────────────────────────────
+cache_uri      = "meu-redis.exemplo.com:6379"
+cache_password = ""
+
+# ── Cloud Run ────────────────────────────────────────────────────────────────
+# min_instance_count = 1 é o que faz os consumidores do Pub/Sub funcionarem, e
+# é também o que domina o custo (~US$ 90/mês com os dois serviços). Use 0 para
+# pausar o ambiente sem destruir nada — ou rode ./scripts/pause.sh.
+min_instance_count = 1
+max_instance_count = 3
+
+app_cpu     = "1"
+app_memory  = "512Mi"
+otel_memory = "256Mi"
+
+# ── Acesso ───────────────────────────────────────────────────────────────────
+allow_public_access = true
+
+school_image_tag    = "latest"
+finantial_image_tag = "latest"

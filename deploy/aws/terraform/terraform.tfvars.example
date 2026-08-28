@@ -1,0 +1,36 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Copie para terraform.tfvars e ajuste. Nenhum banco é criado por este
+# Terraform: as variáveis abaixo apenas apontam para um PostgreSQL e um Redis
+# que já existem e são alcançáveis a partir da VPC.
+# ─────────────────────────────────────────────────────────────────────────────
+
+project_name = "colibri-examples"
+environment  = "sandbox"
+aws_region   = "us-east-1"
+
+# ── Banco remoto ─────────────────────────────────────────────────────────────
+db_host           = "meu-postgres.exemplo.com"
+db_port           = "5432"
+db_user           = "colibri"
+db_password       = "troque-esta-senha"
+db_ssl_mode       = "require"
+db_name_school    = "school_module"
+db_name_finantial = "finantial_module"
+db_run_migrations = true
+
+# ── Cache remoto (school-module) ─────────────────────────────────────────────
+cache_uri      = "meu-redis.exemplo.com:6379"
+cache_password = ""
+
+# ── Rede ─────────────────────────────────────────────────────────────────────
+# Restrinja ao seu IP se não quiser o ambiente aberto para a internet inteira.
+allowed_ingress_cidrs = ["0.0.0.0/0"]
+
+# true coloca as tasks em subnets privadas atrás de NAT Gateway (~US$ 32/mês por AZ).
+enable_nat_gateway = false
+
+# ── Aplicações ───────────────────────────────────────────────────────────────
+school_image_tag    = "latest"
+finantial_image_tag = "latest"
+task_cpu            = 512
+task_memory         = 1024

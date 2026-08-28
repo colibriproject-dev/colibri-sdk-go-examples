@@ -1,0 +1,9 @@
+# Reduz o contexto enviado ao daemon do Docker. Não afeta o build em si — nada
+# aqui é copiado por nenhum dos Dockerfiles do repositório.
+.git
+.idea
+**/coverage
+**/*.test
+deploy/aws/terraform/.terraform
+deploy/aws/terraform/*.tfstate*
+deploy/aws/terraform/terraform.tfvars
