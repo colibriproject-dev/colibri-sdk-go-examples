@@ -21,5 +21,10 @@ build: build-apps
 logs:
 	docker compose -p ${STACK_NAME} logs -f
 
+# Gera tráfego nos módulos para popular os dashboards: make traffic [DURATION=segundos]
+DURATION ?= 0
+traffic:
+	python3 scripts/traffic.py --duration ${DURATION}
+
 stats:
 	docker stats

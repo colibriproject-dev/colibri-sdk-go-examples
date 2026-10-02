@@ -81,6 +81,40 @@ make stats
 #### 📊 Prometheus (Métricas)
 - **URL**: http://localhost:9090
 - **Descrição**: Sistema de monitoramento e coleta de métricas
+- **Jobs**: `school-module` e `finantial-module` raspam o `/metrics` de cada módulo, com os
+  nomes usados pelos dashboards do SDK; `otel-collector` traz apenas as span metrics geradas
+  pelo collector (as demais métricas dele duplicariam as dos módulos).
+- **Alertas**: http://localhost:9090/alerts, com as regras do colibri-sdk-go.
+
+#### 📈 Grafana (Dashboards)
+- **URL**: http://localhost:3001 (acesso anônimo como admin)
+- **Dashboards**: pasta **Colibri**, com HTTP, Messaging, Data stores e Go runtime.
+
+Os dashboards e as regras de alerta são os do
+[`colibri-sdk-go/observability`](https://github.com/colibriproject-dev/colibri-sdk-go/tree/master/observability),
+montados direto do clone do SDK. Por isso o `colibri-sdk-go` precisa estar ao lado deste
+repositório (`../colibri-sdk-go`), que é o mesmo caminho do `replace` nos `go.mod`. Para usar
+outro caminho:
+
+```bash
+COLIBRI_SDK_PATH=/caminho/para/colibri-sdk-go make start
+```
+
+Mudanças nos JSON dos dashboards aparecem no Grafana em até 10 segundos. Mudanças nas
+regras exigem recarregar o Prometheus: `curl -X POST localhost:9090/-/reload`.
+
+#### 🚦 Gerando tráfego
+Com a stack no ar, gere tráfego para popular os dashboards:
+
+```bash
+make traffic                 # roda até Ctrl+C
+make traffic DURATION=300    # roda por 5 minutos
+```
+
+O script [`scripts/traffic.py`](scripts/traffic.py) usa só a biblioteca padrão do Python 3.
+Ele cria e consulta cursos, alunos e matrículas, publicando eventos que o finantial-module
+consome. Também envia documentos ao storage e provoca erros 404 e 400 de propósito. No
+fim, imprime um resumo por rota e status. Veja `python3 scripts/traffic.py --help`.
 
 #### ☁️ LocalStack Web UI
 - **URL**: http://localhost:3000
@@ -130,8 +164,11 @@ CLOUD_HOST=http://localstack:4566
 │   └── migrations/       # Migrações de banco
 ├── dev/                  # Configurações de desenvolvimento
 │   ├── otel-collector/   # Configuração do OpenTelemetry Collector
+│   ├── grafana/          # Provisionamento do Grafana (datasource e dashboards)
 │   ├── prometheus/       # Configuração do Prometheus
 │   └── postgres/         # Scripts de inicialização do PostgreSQL
+├── scripts/
+│   └── traffic.py        # Gerador de tráfego para os dashboards
 ├── docker-compose.yaml   # Orquestração dos serviços
 ├── Dockerfile           # Imagem Docker multi-stage
 └── Makefile            # Comandos de automação

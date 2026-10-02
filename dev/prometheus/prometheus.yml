@@ -1,7 +1,27 @@
 global:
   scrape_interval: 5s
+  evaluation_interval: 5s
+
+# Regras de alerta do colibri-sdk-go, montadas de ../colibri-sdk-go/observability/alerts
+rule_files:
+  - /etc/prometheus/rules/rules.yaml
 
 scrape_configs:
+  # /metrics de cada módulo: os nomes consultados pelos dashboards e alertas do SDK
+  - job_name: 'school-module'
+    static_configs:
+      - targets: ['school-module:8080']
+
+  - job_name: 'finantial-module'
+    static_configs:
+      - targets: ['finantial-module:8081']
+
+  # O collector reexporta as métricas OTLP dos módulos, que já são raspadas acima; manter
+  # apenas as span metrics, geradas por ele, evita contar cada série em dobro nos dashboards.
   - job_name: 'otel-collector'
     static_configs:
       - targets: ['otel-collector:9090']
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'traces_span_metrics_.*'
+        action: keep
